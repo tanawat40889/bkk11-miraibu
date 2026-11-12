@@ -16,6 +16,11 @@
     [[8,14],[86,10],[16,70],[90,62],[50,6],[72,82],[28,32],[66,26]].forEach(([x,y],i)=>{
       const s=mk('i','lb-st');s.style.cssText=`--x:${x}%;--y:${y}%;--s:${30+(i%3)*14}px;--c:${COL[i%COL.length]};--d:${(i*.45).toFixed(2)}s`;el.append(s);
     });
+    if(window.Kids&&Kids.fx){   // สติกเกอร์ไอคอนสีสันลอยรอบหน้ากลาง (Iconify)
+      [['sparkles',7,22],['party-popper',90,16],['crown',5,62],['balloon',92,60],['trophy',13,84],['rainbow',82,84],['glowing-star',30,9],['confetti-ball',68,8]].forEach(([n,x,y],i)=>{
+        const f=mk('div','lb-fx');f.style.cssText=`--x:${x}%;--y:${y}%;--d:${(i*.45).toFixed(2)}s`;f.innerHTML=Kids.fx(n);el.append(f);
+      });
+    }
     el.append(mk('div'));                                   // แถวหัว (ว่าง) ให้ความสูงเท่ากับหน้าอื่น
     const main=mk('main','lb-main');
     const h=mk('h1','lb-1');h.append(mk('span','w','รวม'),mk('span','w','ภาคกรุงเทพ'),document.createTextNode(' '),mk('span','n',TITLE_N));

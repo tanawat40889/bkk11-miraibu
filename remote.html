@@ -41,6 +41,7 @@ body{touch-action:manipulation}
 .sc button:active{transform:scale(.88)}
 .rk{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;font-size:21px;font-weight:600;box-shadow:0 0 0 3px rgba(255,255,255,.85);animation:pop-in .45s var(--pop) backwards}
 .rk b{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .medal.ico{background:none;font-size:1.3em}
 .rk .medal{width:1.5em;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--m,rgba(0,0,0,.25));color:var(--ink);font-size:.85em}
 /* แถบเสียงกลาง: อยู่ทุกหน้า */
 #vol{display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:6px;border-radius:999px;background:rgba(0,0,0,.26);box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
@@ -56,7 +57,7 @@ body{touch-action:manipulation}
 #vr:focus-visible{outline-offset:6px}
 /* ตั้งค่า */
 .fs{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);border-radius:22px;padding:14px;text-align:left}
-.sh{width:100%;font-size:13px;opacity:.85;margin-top:6px}.sh:first-child{margin-top:0}
+.sh{width:100%;font-size:13px;margin-top:6px;display:flex;align-items:center;gap:8px}.sh:first-child{margin-top:0}
 .fr{width:100%;display:flex;align-items:center;gap:8px}
 .fl{flex:1;font-size:15px;min-width:0}
 .fl i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--c)}
@@ -99,6 +100,7 @@ body{touch-action:manipulation}
 </section>
 <div class="sheet" id="sheet"></div>
 
+<script src="shared/icons.js"></script>
 <script src="shared/kids.js"></script>
 <script src="shared/games.js"></script>
 <script src="shared/config.js"></script>
@@ -143,7 +145,7 @@ $('menu').onclick=openMenu;Kids.icons($('menu').parentNode);
 const tmr={};
 function sendSet(k,v,delay){clearTimeout(tmr[k]);tmr[k]=setTimeout(()=>send('set',{k,v}),delay||0)}
 function field(f){
-  if(f.type==='h')return el('div','sh',f.t);
+  if(f.type==='h'){const d=el('div','sh');if(f.ico&&Kids.ICON[f.ico])d.insertAdjacentHTML('afterbegin','<span class="rico">'+Kids.ICON[f.ico]+'</span>');d.append(document.createTextNode(f.t));return d}
   if(f.type==='toggle'){
     const b=el('button','tagb'+(f.v?' on':''),f.t);b.setAttribute('aria-pressed',!!f.v);
     b.onclick=()=>{const v=!b.classList.contains('on');b.classList.toggle('on',v);b.setAttribute('aria-pressed',v);send('set',{k:f.k,v})};return b;
@@ -194,7 +196,7 @@ function render(s,off){
     m.append(el('div','h','สรุปคะแนน'));
     [...T.items].map((t,i)=>({...t,i})).sort((a,b)=>b.v-a.v).forEach((t,k)=>{
       const d=el('div','rk');d.style.background=t.c;d.style.color=t.f;d.style.animationDelay=k*90+'ms';
-      const md=el('span','medal',k+1);if(MED[k])md.style.setProperty('--m',MED[k]);d.append(md,el('b','',t.n),el('span','',t.v));m.append(d)});
+      const md=el('span','medal');if(k<3){md.classList.add('ico');md.innerHTML=Kids.fx(['1st','2nd','3rd'][k]+'-place-medal')}else md.textContent=k+1;d.append(md,el('b','',t.n),el('span','',t.v));m.append(d)});
   }else if(T&&T.pick){
     m.append(el('div','h',T.label||'ให้คะแนนทีมไหน?'));
     const g=el('div','grid');

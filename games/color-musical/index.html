@@ -51,14 +51,14 @@
 <div id="flood"></div>
 
 <section id="s-set" class="scr on">
-  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl">เก้าอี้ดนตรี · เหยียบสี</h1></header>
+  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl" data-fx="party-popper">เก้าอี้ดนตรี · เหยียบสี</h1></header>
   <main>
     <div class="lbl">เลือกสีที่มีกระดาษ</div>
     <div class="chips" id="chips"></div>
     <div class="panel col">
-      <div class="row">เพลงเล่นนาน <input class="fld" id="mn" type="number" min="3" value="8"> – <input class="fld" id="mx" type="number" min="3" value="20"> วินาที</div>
-      <div class="row">หลอกว่าจะหยุด สูงสุด <input class="fld" id="fakes" type="number" min="0" value="2"> ครั้ง/รอบ <small>(สุ่ม, 0 = ไม่หลอก)</small></div>
-      <div class="row">ให้เวลาเหยียบสี <input class="fld" id="hold" type="number" min="2" value="6"> วินาที</div>
+      <div class="row"><i class="rico" data-ico="music"></i>เพลงเล่นนาน <input class="fld" id="mn" type="number" min="3" value="8"> – <input class="fld" id="mx" type="number" min="3" value="20"> วินาที</div>
+      <div class="row"><i class="rico" data-ico="hourglass"></i>หลอกว่าจะหยุด สูงสุด <input class="fld" id="fakes" type="number" min="0" value="2"> ครั้ง/รอบ <small>(สุ่ม, 0 = ไม่หลอก)</small></div>
+      <div class="row"><i class="rico" data-ico="timer"></i>ให้เวลาเหยียบสี <input class="fld" id="hold" type="number" min="2" value="6"> วินาที</div>
     </div>
     <div class="err" id="err" role="status"></div>
     <div class="rurl"><div id="qr" hidden></div><div id="rtxt"></div></div>
@@ -84,6 +84,7 @@
   <footer><div id="ring" class="ring"><span id="cnt"></span></div><button class="btn ghost" id="skip2" data-ico="next"> ข้าม</button></footer>
 </section>
 
+<script src="../../shared/icons.js"></script>
 <script src="../../shared/kids.js"></script>
 <script src="../../shared/vol.js"></script>
 <script src="../../shared/bgm.js"></script>
@@ -149,17 +150,19 @@ function startGame(){
   if(!ytReady){$('err').textContent='กำลังโหลดเพลง... ลองกดอีกครั้ง';return}
   $('err').textContent='';audio();round=0;deck=[];last=-1;music();
 }
-function clr(){clearTimeout(timer);fk.forEach(clearTimeout);fk=[];clearInterval(fiv);clearInterval(tick);$('s-play').classList.remove('warn');$('msg').textContent='เดินไปเรื่อยๆ!'}
+const DANCERS=['woman-dancing','man-dancing'];
+function setMsg(ic,t){$('msg').innerHTML=Kids.fx(ic)+' ';$('msg').append(document.createTextNode(t))}
+function clr(){clearTimeout(timer);fk.forEach(clearTimeout);fk=[];clearInterval(fiv);clearInterval(tick);$('s-play').classList.remove('warn');setMsg(DANCERS[round%2],'เดินไปเรื่อยๆ!')}
 /* หลอก: เสียงค่อยๆ เบาลงจนเงียบ แล้วเด้งกลับมาเล่นต่อ (เพลงไม่ได้หยุดจริง) */
 const DIP=1200;
 function fake(){
   const t0=Date.now(),hold=500+Math.random()*700;
-  $('s-play').classList.add('warn');$('msg').textContent='ใกล้หยุดแล้ว...!';Remote.push();
+  $('s-play').classList.add('warn');setMsg('hourglass-not-done','ใกล้หยุดแล้ว...!');Remote.push();
   fiv=setInterval(()=>{const p=Math.min((Date.now()-t0)/DIP,1);yt.setVolume(Math.round(Vol.pct()*(1-p)*(1-p)));if(p>=1)clearInterval(fiv)},60);
   fk.push(setTimeout(()=>{
-    clearInterval(fiv);yt.setVolume(Vol.pct());$('s-play').classList.remove('warn');$('msg').textContent='หลอกกก!';chime();Remote.push();
+    clearInterval(fiv);yt.setVolume(Vol.pct());$('s-play').classList.remove('warn');setMsg('face-with-tongue','หลอกกก!');chime();Remote.push();
     $('msg').classList.remove('wiggle');void $('msg').offsetWidth;$('msg').classList.add('wiggle');
-    fk.push(setTimeout(()=>{if(state==='play'){$('msg').textContent='เดินไปเรื่อยๆ!';$('msg').classList.remove('wiggle')}},1500));
+    fk.push(setTimeout(()=>{if(state==='play'){setMsg(DANCERS[round%2],'เดินไปเรื่อยๆ!');$('msg').classList.remove('wiggle')}},1500));
   },DIP+hold));
 }
 function music(){
@@ -204,7 +207,7 @@ BGM.init({allow:()=>state==='set'});
 Vol.on(()=>{if(state==='play'&&yt&&!$('s-play').classList.contains('warn'))yt.setVolume(Vol.pct())});
 const RT='เก้าอี้ดนตรี';
 const NUMS={mn:{t:'เพลงเล่นนานอย่างน้อย',min:3,u:'วิ'},mx:{t:'เพลงเล่นนานอย่างมาก',min:3,u:'วิ'},fakes:{t:'หลอกว่าจะหยุด สูงสุด',min:0,max:5,u:'ครั้ง/รอบ'},hold:{t:'เวลาเหยียบสี',min:2,u:'วิ'}};
-function settingsUi(){return[{type:'h',t:'สีที่มีกระดาษ'},{k:'colors',type:'colors',v:[...sel],opts:COLORS.map(c=>({n:c.n,c:c.c,f:c.f}))},{type:'h',t:'จังหวะเพลง'},
+function settingsUi(){return[{type:'h',t:'สีที่มีกระดาษ',ico:'grid'},{k:'colors',type:'colors',v:[...sel],opts:COLORS.map(c=>({n:c.n,c:c.c,f:c.f}))},{type:'h',t:'จังหวะเพลง',ico:'music'},
   ...NK.map(k=>({k,type:'number',t:NUMS[k].t,v:+$(k).value||0,min:NUMS[k].min,max:NUMS[k].max,u:NUMS[k].u}))]}
 function applySet(a){if(!a)return;if(a.k==='colors')sel=new Set(a.v);else if(NUMS[a.k])$(a.k).value=a.v;refreshChips();saveCfg();Remote.push()}
 Remote.init({id:'color-musical',needsSound:true,qrEl:$('qr'),txtEl:$('rtxt'),lobby:()=>state==='set'?'เก้าอี้ดนตรี เหยียบสี':false,

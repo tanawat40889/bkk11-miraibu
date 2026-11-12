@@ -44,7 +44,8 @@
   R.fillQr=(qrEl,txtEl)=>{
     const url=R.url();
     try{const q=qrcode(0,'M');q.addData(url);q.make();qrEl.innerHTML=q.createSvgTag({cellSize:4,margin:0,scalable:true});qrEl.hidden=false}catch(_){}
-    const t=[el('b','','สแกนเพื่อคุมเกมด้วยมือถือ'),el('div','u',url)];
+    const b=el('b','','สแกนเพื่อคุมเกมด้วยมือถือ');if(window.Kids)b.insertAdjacentHTML('afterbegin',Kids.ICON.phone+' ');
+    const t=[b,el('div','u',url)];
     if(Net.mode==='cloud')t.push(el('div','','รหัสห้อง '+Net.room+' · ใช้อินเทอร์เน็ตได้เลย ไม่ต้องอยู่ wifi เดียวกัน'));
     else t.push(el('div','','ต้องอยู่ wifi เดียวกัน'));
     txtEl.replaceChildren(...t);

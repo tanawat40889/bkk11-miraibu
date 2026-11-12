@@ -37,6 +37,7 @@
   box-shadow:0 0 0 clamp(3px,.45vw,5px) rgba(255,255,255,.85),0 16px 26px -14px rgba(0,0,0,.7);animation:rk-in .7s var(--pop) backwards;animation-delay:calc((var(--n) - var(--k))*160ms)}
 .rk:first-child{transform:scale(1.07)}
 .rk b{flex:1;text-align:left;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .medal.ico{background:none;font-size:1.25em}
 .rk .medal{flex:none;width:1.5em;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--m,rgba(0,0,0,.25));color:var(--ink);font-size:.8em}
 @keyframes rk-in{from{opacity:0;transform:translateX(-60px) scale(.8)}}
 .hint{font-size:clamp(14px,2.2dvh + .4vw,22px);opacity:.85}
@@ -45,10 +46,10 @@
 <body>
 
 <section id="set" class="scr on">
-  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl">ท่องคัมภีร์ · แข่งเป็นทีม</h1></header>
+  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl" data-fx="scroll">ท่องคัมภีร์ · แข่งเป็นทีม</h1></header>
   <main>
     <div class="panel col">
-      <div class="row">จำนวนทีม <input class="fld" id="nt" type="number" min="2" max="6" value="3"></div>
+      <div class="row"><i class="rico" data-ico="users"></i>จำนวนทีม <input class="fld" id="nt" type="number" min="2" max="6" value="3"></div>
       <div id="teams"></div>
     </div>
     <div class="panel col">
@@ -72,11 +73,12 @@
 </section>
 
 <section id="end" class="scr">
-  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl">สรุปคะแนน</h1></header>
+  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl" data-fx="trophy">สรุปคะแนน</h1></header>
   <main><div id="rank"></div></main>
   <footer><div class="hint">เล่นอีกครั้ง: กดที่รีโมทมือถือ หรือกด Space</div></footer>
 </section>
 
+<script src="../../shared/icons.js"></script>
 <script src="../../shared/kids.js"></script>
 <script src="data.js"></script>
 <script src="../../shared/vol.js"></script>
@@ -163,6 +165,7 @@ function drawBoard(hot=-1){
   if(hotEl){const[x,y]=Kids.center(hotEl);Kids.confetti(x,y,34)}
   pub();
 }
+const qpill=(ic,t)=>{const d=el('div','q');d.innerHTML=Kids.fx(ic)+' ';d.append(document.createTextNode(t));return d};
 function ask(){
   clearInterval(tmr);st='ask';tleft=tsec;const q=qs[qi];
   $('info').textContent='ข้อ '+(qi+1)+' / '+qs.length+' · '+q.lab+' · '+(q.k==='fill'?'เติมคำ':'ต่อบรรทัด');
@@ -171,9 +174,9 @@ function ask(){
   if(q.k==='fill'){
     if(q.ctx)add(el('div','ctx',q.ctx));
     const l=el('div','line');q.tok.forEach((w,i)=>{l.append(el('span',q.bl.has(i)?'blank':'',w))});add(l);
-    add(el('div','q','เติมคำที่หายไป'));
+    add(qpill('puzzle-piece','เติมคำที่หายไป'));
   }else{
-    add(el('div','line',q.line));add(el('div','q','บรรทัดต่อไปคืออะไร?'));
+    add(el('div','line',q.line));add(qpill('thinking-face','บรรทัดต่อไปคืออะไร?'));
   }
   drawBoard();timer();
 }
@@ -188,7 +191,7 @@ function timer(){
 function doReveal(){
   if(st!=='ask')return;clearInterval(tmr);$('ring').classList.add('off');st='reveal';reveal();const q=qs[qi],s=$('stage');
   if(q.k==='fill')s.querySelectorAll('.blank').forEach((b,i)=>{b.style.animationDelay=i*140+'ms';b.classList.add('fill')});
-  else{s.querySelector('.q').textContent='เฉลย';const a=el('div','ans',q.ans);a.style.setProperty('--k',0);s.append(a)}
+  else{const old=s.querySelector('.q'),nq=qpill('light-bulb','เฉลย');nq.style.animation='none';old.replaceWith(nq);const a=el('div','ans',q.ans);a.style.setProperty('--k',0);s.append(a)}
   drawBoard();
 }
 function award(i){
@@ -203,7 +206,7 @@ function finish(){
   r.style.setProperty('--n',order.length);
   order.forEach((o,k)=>{
     const d=el('div','rk');d.style.setProperty('--k',k);d.style.background=TC[o.i].c;d.style.color=TC[o.i].f;
-    const m=el('span','medal',k+1);if(M[k])m.style.setProperty('--m',M[k]);
+    const m=el('span','medal');if(k<3){m.classList.add('ico');m.innerHTML=Kids.fx(['1st','2nd','3rd'][k]+'-place-medal')}else m.textContent=k+1;
     d.append(m,el('b','',names[o.i]),el('span','',o.v));r.append(d);
   });
   tone(523,0,.15);tone(659,.15,.15);tone(784,.3,.15);tone(1047,.45,.5);show('end');pub();
@@ -226,11 +229,11 @@ const teamsUi=()=>(st==='set'?[]:sc).map((v,i)=>({n:names[i]||'ทีม '+(i+1)
 function pub(){Remote.push()}
 function settingsUi(){
   const nt=Math.min(6,Math.max(2,+$('nt').value||3));
-  const f=[{type:'h',t:'ทีม'},{k:'nt',type:'number',t:'จำนวนทีม',v:nt,min:2,max:6}];
+  const f=[{type:'h',t:'ทีม',ico:'users'},{k:'nt',type:'number',t:'จำนวนทีม',v:nt,min:2,max:6}];
   for(let i=0;i<nt;i++)f.push({k:'name'+i,type:'text',t:'ชื่อทีม '+(i+1),v:names[i]||'ทีม '+(i+1),c:TC[i].c});
-  f.push({type:'h',t:'ช่วงคัมภีร์'});secBoxes().forEach((b,i)=>f.push({k:'sec'+i,type:'toggle',t:KAMPIR[i].name,v:b.checked}));
-  f.push({type:'h',t:'รูปแบบคำถาม'},{k:'fill',type:'toggle',t:'เติมคำ',v:$('t-fill').checked},{k:'next',type:'toggle',t:'ต่อบรรทัด',v:$('t-next').checked},
-    {type:'h',t:'จำนวน'},{k:'nq',type:'number',t:'จำนวนข้อ',v:+$('nq').value||10,min:1,max:99},{k:'nb',type:'number',t:'คำที่ซ่อนต่อบรรทัด',v:+$('nb').value||2,min:1,max:4},
+  f.push({type:'h',t:'ช่วงคัมภีร์',ico:'scroll'});secBoxes().forEach((b,i)=>f.push({k:'sec'+i,type:'toggle',t:KAMPIR[i].name,v:b.checked}));
+  f.push({type:'h',t:'รูปแบบคำถาม',ico:'bulb'},{k:'fill',type:'toggle',t:'เติมคำ',v:$('t-fill').checked},{k:'next',type:'toggle',t:'ต่อบรรทัด',v:$('t-next').checked},
+    {type:'h',t:'จำนวน',ico:'sliders'},{k:'nq',type:'number',t:'จำนวนข้อ',v:+$('nq').value||10,min:1,max:99},{k:'nb',type:'number',t:'คำที่ซ่อนต่อบรรทัด',v:+$('nb').value||2,min:1,max:4},
     {k:'tt',type:'number',t:'จับเวลา (0 = ไม่จับ)',v:+$('tt').value||0,min:0,max:120,u:'วิ'});
   return f;
 }
