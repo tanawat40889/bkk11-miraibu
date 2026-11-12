@@ -1,0 +1,3 @@
+[submodule "animal-random"]
+	path = animal-random
+	url = https://github.com/tanawat40889/bkk11-miraibu-animals.git

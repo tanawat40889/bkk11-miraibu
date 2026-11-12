@@ -21,12 +21,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      # เกมสุ่มสัตว์อยู่ในรีโพของตัวเอง ดึงมารวมไว้ที่ /animal-random/
+      # เกมสุ่มสัตว์อยู่ในรีโพของตัวเอง ผูกไว้เป็น submodule ที่ /animal-random/
       - uses: actions/checkout@v4
         with:
-          repository: tanawat40889/bkk11-miraibu-animals
-          path: animal-random
+          submodules: true
       - name: Remove files that should not be published
         run: rm -rf animal-random/.git deploy server.py
       - uses: actions/configure-pages@v5
