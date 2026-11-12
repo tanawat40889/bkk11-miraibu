@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ท่องคัมภีร์ · ทีม</title>
+<link rel="stylesheet" href="../../shared/kids.css">
+<style>
+/* ---------- ตั้งค่า ---------- */
+#teams{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.tm{padding:6px;border-radius:18px;box-shadow:0 0 0 3px rgba(255,255,255,.75);animation:pop-in .5s var(--pop) backwards}
+.tm .fld{width:7.5em}
+
+/* ---------- เล่น ---------- */
+#info{min-width:0}
+.stage{width:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(8px,2dvh,22px)}
+.stage>*{animation:rise .55s var(--ease) backwards;animation-delay:calc(var(--k,0)*90ms)}
+@keyframes rise{from{opacity:0;transform:translateY(24px) scale(.97)}}
+.ctx{font-size:clamp(18px,3.4dvh + .6vw,40px);opacity:.62}
+.line{font-weight:600;font-size:clamp(32px,6.6dvh + 2vw,104px);line-height:1.35;display:flex;flex-wrap:wrap;gap:.1em .42em;justify-content:center}
+.blank{min-width:2.1em;color:transparent;background:rgba(255,210,63,.2);box-shadow:inset 0 -.08em 0 var(--y);border-radius:.22em}
+.blank.fill{color:var(--ink);background:var(--y);box-shadow:none;padding:0 .2em;animation:flip .6s var(--pop) backwards}
+@keyframes flip{from{transform:rotateX(90deg) scale(.7);opacity:0}}
+.q{font-size:clamp(16px,2.8dvh + .5vw,34px);color:var(--y);background:rgba(0,0,0,.22);padding:.2em 1em;border-radius:999px}
+.ans{font-weight:600;font-size:clamp(32px,6.6dvh + 2vw,104px);line-height:1.35;color:var(--mint)}
+#board{width:100%;max-width:1100px;height:100%;display:flex;gap:clamp(8px,1.4vw,18px);justify-content:center;align-items:center;padding:6px 6px 0}
+.sc{flex:1;max-width:250px;height:min(100%,150px);border-radius:clamp(16px,2.4vw,26px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-width:0;
+  box-shadow:0 0 0 clamp(3px,.45vw,5px) rgba(255,255,255,.85),0 16px 26px -14px rgba(0,0,0,.7);transition:transform .3s var(--pop)}
+.sc .n{font-weight:600;font-size:clamp(13px,2.2dvh + .4vw,26px);line-height:1.1;max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc .v{font-weight:600;font-size:clamp(28px,8dvh,84px);line-height:1}
+.sc.hot{animation:scorepop .7s var(--pop)}
+@keyframes scorepop{30%{transform:scale(1.22) rotate(-3deg)}60%{transform:scale(.96) rotate(2deg)}}
+
+/* ---------- สรุป ---------- */
+#rank{display:flex;flex-direction:column;gap:clamp(8px,1.6dvh,16px);align-items:stretch;width:min(100%,640px)}
+.rk{display:flex;align-items:center;gap:clamp(10px,2vw,20px);font-weight:600;font-size:clamp(22px,4.4dvh + 1vw,56px);padding:.18em .5em .18em .25em;border-radius:999px;
+  box-shadow:0 0 0 clamp(3px,.45vw,5px) rgba(255,255,255,.85),0 16px 26px -14px rgba(0,0,0,.7);animation:rk-in .7s var(--pop) backwards;animation-delay:calc((var(--n) - var(--k))*160ms)}
+.rk:first-child{transform:scale(1.07)}
+.rk b{flex:1;text-align:left;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .medal{flex:none;width:1.5em;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--m,rgba(0,0,0,.25));color:var(--ink);font-size:.8em}
+@keyframes rk-in{from{opacity:0;transform:translateX(-60px) scale(.8)}}
+.hint{font-size:clamp(14px,2.2dvh + .4vw,22px);opacity:.85}
+</style>
+</head>
+<body>
+
+<section id="set" class="scr on">
+  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl">ท่องคัมภีร์ · แข่งเป็นทีม</h1></header>
+  <main>
+    <div class="panel col">
+      <div class="row">จำนวนทีม <input class="fld" id="nt" type="number" min="2" max="6" value="3"></div>
+      <div id="teams"></div>
+    </div>
+    <div class="panel col">
+      <div class="row" id="secs"></div>
+      <div class="row">
+        <label class="tag"><input type="checkbox" id="t-fill" checked>เติมคำ</label>
+        <label class="tag"><input type="checkbox" id="t-next" checked>ต่อบรรทัด</label>
+      </div>
+      <div class="row">จำนวนข้อ <input class="fld" id="nq" type="number" min="1" value="10"> · คำที่ซ่อนต่อบรรทัด <input class="fld" id="nb" type="number" min="1" max="4" value="2"> · จับเวลา <input class="fld" id="tt" type="number" min="0" value="20"> วินาที <small>(0 = ไม่จับ)</small></div>
+    </div>
+    <div class="err" id="err" role="status"></div>
+    <div id="rurl" class="rurl"><div id="qr" hidden></div><div id="rtxt"></div></div>
+  </main>
+  <footer><button id="start" class="btn go" data-ico="play"> เริ่มเกม</button></footer>
+</section>
+
+<section id="play" class="scr">
+  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><div id="info" class="ttl sm"></div><div class="hdr-sp"></div><div id="ring" class="ring"><span id="cnt"></span></div></header>
+  <main><div id="stage" class="stage"></div></main>
+  <footer><div id="board"></div></footer>
+</section>
+
+<section id="end" class="scr">
+  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl">สรุปคะแนน</h1></header>
+  <main><div id="rank"></div></main>
+  <footer><div class="hint">เล่นอีกครั้ง: กดที่รีโมทมือถือ หรือกด Space</div></footer>
+</section>
+
+<script src="../../shared/kids.js"></script>
+<script src="data.js"></script>
+<script src="../../shared/vol.js"></script>
+<script src="../../shared/bgm.js"></script>
+<script src="../../shared/qrcode.js"></script>
+<script src="../../shared/lobby.js"></script>
+<script src="../../shared/config.js"></script>
+<script src="../../shared/net.js"></script>
+<script src="../../shared/remote-client.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const TC=[{c:'#d62839',f:'#fff'},{c:'#29b6f6',f:'#06293a'},{c:'#1f8a3e',f:'#fff'},{c:'#ffd23f',f:'#3a2f00'},{c:'#8e44ad',f:'#fff'},{c:'#ff8a00',f:'#2b1300'}];
+
+/* ---- sound ---- */
+let ac;const audio=()=>{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()};
+function tone(f,t0,d,type='triangle',v=.15){const k=window.Vol?Vol.get():1;if(!ac||!k)return;v*=k;const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;o.connect(g);g.connect(ac.destination);
+  const t=ac.currentTime+t0;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}
+const ding=()=>{tone(784,0,.15);tone(1047,.12,.3)},buzz=()=>{tone(220,0,.5,'sawtooth',.12)},reveal=()=>tone(660,0,.12);
+
+/* ---- setup ---- */
+const names=[];
+function drawTeams(){
+  const n=Math.min(6,Math.max(2,+$('nt').value||3)),box=$('teams');box.replaceChildren();
+  for(let i=0;i<n;i++){
+    if(!names[i])names[i]='ทีม '+(i+1);
+    const d=el('div','tm');d.style.background=TC[i].c;d.style.animationDelay=i*60+'ms';
+    const inp=el('input','fld txt');inp.type='text';inp.value=names[i];inp.setAttribute('aria-label','ชื่อทีม '+(i+1));inp.oninput=()=>names[i]=inp.value;d.append(inp);box.append(d);
+  }
+}
+$('nt').oninput=drawTeams;drawTeams();
+KAMPIR.forEach((s,i)=>{const l=el('label','tag');const c=el('input');c.type='checkbox';c.checked=true;c.dataset.i=i;l.append(c,document.createTextNode(s.name+' ('+s.slides.length+' หน้า)'));$('secs').append(l)});
+
+/* จำค่าตั้งค่าไว้ในเครื่อง (สลับเกมแล้วกลับมาค่าเดิมยังอยู่) */
+const KEY='miraibu.gongyo-teams',secBoxes=()=>[...$('secs').querySelectorAll('input')];
+function saveCfg(){try{localStorage.setItem(KEY,JSON.stringify({nt:$('nt').value,names,secs:secBoxes().map(c=>c.checked),fill:$('t-fill').checked,next:$('t-next').checked,nq:$('nq').value,nb:$('nb').value,tt:$('tt').value}))}catch(_){}}
+(function(){try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(!c)return;
+  if(Array.isArray(c.names))c.names.forEach((n,i)=>{if(n)names[i]=n});
+  if(c.nt)$('nt').value=c.nt;drawTeams();
+  if(Array.isArray(c.secs))secBoxes().forEach((b,i)=>{if(c.secs[i]!=null)b.checked=c.secs[i]});
+  if(c.fill!=null)$('t-fill').checked=c.fill;if(c.next!=null)$('t-next').checked=c.next;
+  ['nq','nb','tt'].forEach(k=>{if(c[k]!=null)$(k).value=c[k]})}catch(_){}})();
+['input','change'].forEach(ev=>$('set').addEventListener(ev,()=>{saveCfg();Remote.push()}));
+
+/* ---- questions ---- */
+function buildQuestions(){
+  const secOn=[...$('secs').querySelectorAll('input')].filter(c=>c.checked).map(c=>+c.dataset.i);
+  const kinds=[];if($('t-fill').checked)kinds.push('fill');if($('t-next').checked)kinds.push('next');
+  const cand={fill:[],next:[]};
+  secOn.forEach(si=>KAMPIR[si].slides.forEach((ls,pi)=>ls.forEach((l,li)=>{
+    const tok=l.split(' ');const lab=KAMPIR[si].name+' หน้า '+(pi+1);
+    if(tok.length>=2)cand.fill.push({lab,ls,li});
+    if(li+1<ls.length)cand.next.push({lab,ls,li});
+  })));
+  const n=Math.max(1,+$('nq').value||10),nb=Math.min(4,Math.max(1,+$('nb').value||2)),qs=[],used=new Set();
+  for(let t=0;t<n*30&&qs.length<n;t++){
+    const k=kinds[Math.floor(Math.random()*kinds.length)],pool=cand[k];if(!pool.length)continue;
+    const c=pool[Math.floor(Math.random()*pool.length)],key=k+c.lab+c.li;if(used.has(key))continue;used.add(key);
+    if(k==='fill'){
+      const tok=c.ls[c.li].split(' '),m=Math.min(nb,Math.max(1,tok.length-1)),idx=[...tok.keys()].sort(()=>Math.random()-.5).slice(0,m);
+      qs.push({k,lab:c.lab,ctx:c.li>0?c.ls[c.li-1]:'',tok,bl:new Set(idx)});
+    }else qs.push({k,lab:c.lab,line:c.ls[c.li],ans:c.ls[c.li+1]});
+  }
+  return qs;
+}
+
+/* ---- game ---- */
+let qs=[],qi=0,sc=[],st='set',tmr=0,tsec=0,tleft=0;
+function startGame(){
+  const nt=Math.min(6,Math.max(2,+$('nt').value||3));
+  if(![...$('secs').querySelectorAll('input')].some(c=>c.checked)){$('err').textContent='เลือกช่วงคัมภีร์อย่างน้อย 1 ช่วง';return}
+  if(!$('t-fill').checked&&!$('t-next').checked){$('err').textContent='เลือกรูปแบบคำถามอย่างน้อย 1 แบบ';return}
+  qs=buildQuestions();if(!qs.length){$('err').textContent='ไม่มีข้อให้ถาม';return}
+  $('err').textContent='';audio();sc=Array(nt).fill(0);qi=0;tsec=Math.max(0,+$('tt').value||0);drawBoard();ask();show('play');
+}
+const show=id=>document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));
+function drawBoard(hot=-1){
+  const b=$('board');b.replaceChildren();let hotEl=null;
+  sc.forEach((v,i)=>{
+    const d=el('div','sc'+(i===hot?' hot':''));d.style.background=TC[i].c;d.style.color=TC[i].f;
+    d.append(el('div','n',names[i]||'ทีม '+(i+1)),el('div','v',v));
+    if(i===hot)hotEl=d;b.append(d);
+  });
+  if(hotEl){const[x,y]=Kids.center(hotEl);Kids.confetti(x,y,34)}
+  pub();
+}
+function ask(){
+  clearInterval(tmr);st='ask';tleft=tsec;const q=qs[qi];
+  $('info').textContent='ข้อ '+(qi+1)+' / '+qs.length+' · '+q.lab+' · '+(q.k==='fill'?'เติมคำ':'ต่อบรรทัด');
+  const s=$('stage');s.replaceChildren();let k=0;
+  const add=e=>{e.style.setProperty('--k',k++);s.append(e)};
+  if(q.k==='fill'){
+    if(q.ctx)add(el('div','ctx',q.ctx));
+    const l=el('div','line');q.tok.forEach((w,i)=>{l.append(el('span',q.bl.has(i)?'blank':'',w))});add(l);
+    add(el('div','q','เติมคำที่หายไป'));
+  }else{
+    add(el('div','line',q.line));add(el('div','q','บรรทัดต่อไปคืออะไร?'));
+  }
+  drawBoard();timer();
+}
+function timer(){
+  const ring=$('ring');ring.classList.toggle('off',!tsec);ring.classList.remove('zero','hurry');if(!tsec)return;
+  const t0=Date.now();
+  const u=()=>{const e=(Date.now()-t0)/1000,left=Math.max(0,Math.ceil(tsec-e));ring.style.setProperty('--p',Math.max(0,100-e/tsec*100));$('cnt').textContent=left;tleft=left;
+    ring.classList.toggle('hurry',left<=5&&left>0);
+    if(e>=tsec){clearInterval(tmr);ring.classList.add('zero');buzz()}};
+  u();tmr=setInterval(u,100);
+}
+function doReveal(){
+  if(st!=='ask')return;clearInterval(tmr);$('ring').classList.add('off');st='reveal';reveal();const q=qs[qi],s=$('stage');
+  if(q.k==='fill')s.querySelectorAll('.blank').forEach((b,i)=>{b.style.animationDelay=i*140+'ms';b.classList.add('fill')});
+  else{s.querySelector('.q').textContent='เฉลย';const a=el('div','ans',q.ans);a.style.setProperty('--k',0);s.append(a)}
+  drawBoard();
+}
+function award(i){
+  if(st!=='reveal')return;st='done';sc[i]++;ding();drawBoard(i);setTimeout(next,1300);
+}
+function next(){
+  if(st==='ask')return;qi++;if(qi>=qs.length)return finish();ask();
+}
+function finish(){
+  clearInterval(tmr);st='end';const r=$('rank');r.replaceChildren();
+  const order=sc.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v),M=['#ffd23f','#dfe6f0','#e08a4d'];
+  r.style.setProperty('--n',order.length);
+  order.forEach((o,k)=>{
+    const d=el('div','rk');d.style.setProperty('--k',k);d.style.background=TC[o.i].c;d.style.color=TC[o.i].f;
+    const m=el('span','medal',k+1);if(M[k])m.style.setProperty('--m',M[k]);
+    d.append(m,el('b','',names[o.i]),el('span','',o.v));r.append(d);
+  });
+  tone(523,0,.15);tone(659,.15,.15);tone(784,.3,.15);tone(1047,.45,.5);show('end');pub();
+  setTimeout(()=>Kids.rain(44),500);
+}
+function toSetup(){clearInterval(tmr);st='set';show('set');pub()}
+$('start').onclick=startGame;
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(st==='ask'&&(e.key===' '||e.key==='Enter')){e.preventDefault();doReveal()}
+  else if(st==='reveal'&&(e.key===' '||e.key==='Enter')){e.preventDefault();next()}
+  else if(st==='reveal'&&/^[1-6]$/.test(e.key)&&+e.key<=sc.length)award(+e.key-1);
+  else if(st==='end'&&(e.key===' '||e.key==='Enter')){e.preventDefault();toSetup()}
+  else if(e.key==='Escape'&&st!=='set')toSetup();
+});
+
+/* ---- รีโมทมือถือ ---- */
+const RT='ท่องคัมภีร์';
+const teamsUi=()=>(st==='set'?[]:sc).map((v,i)=>({n:names[i]||'ทีม '+(i+1),v,c:TC[i].c,f:TC[i].f}));
+function pub(){Remote.push()}
+function settingsUi(){
+  const nt=Math.min(6,Math.max(2,+$('nt').value||3));
+  const f=[{type:'h',t:'ทีม'},{k:'nt',type:'number',t:'จำนวนทีม',v:nt,min:2,max:6}];
+  for(let i=0;i<nt;i++)f.push({k:'name'+i,type:'text',t:'ชื่อทีม '+(i+1),v:names[i]||'ทีม '+(i+1),c:TC[i].c});
+  f.push({type:'h',t:'ช่วงคัมภีร์'});secBoxes().forEach((b,i)=>f.push({k:'sec'+i,type:'toggle',t:KAMPIR[i].name,v:b.checked}));
+  f.push({type:'h',t:'รูปแบบคำถาม'},{k:'fill',type:'toggle',t:'เติมคำ',v:$('t-fill').checked},{k:'next',type:'toggle',t:'ต่อบรรทัด',v:$('t-next').checked},
+    {type:'h',t:'จำนวน'},{k:'nq',type:'number',t:'จำนวนข้อ',v:+$('nq').value||10,min:1,max:99},{k:'nb',type:'number',t:'คำที่ซ่อนต่อบรรทัด',v:+$('nb').value||2,min:1,max:4},
+    {k:'tt',type:'number',t:'จับเวลา (0 = ไม่จับ)',v:+$('tt').value||0,min:0,max:120,u:'วิ'});
+  return f;
+}
+function applySet(a){
+  if(!a)return;const{k,v}=a;
+  if(k==='nt'){$('nt').value=v;drawTeams()}
+  else if(/^name\d+$/.test(k)){const i=+k.slice(4);names[i]=v;const d=$('teams').children[i],inp=d&&d.querySelector('input');if(inp)inp.value=v}
+  else if(/^sec\d+$/.test(k)){const b=secBoxes()[+k.slice(3)];if(b)b.checked=!!v}
+  else if(k==='fill')$('t-fill').checked=!!v;
+  else if(k==='next')$('t-next').checked=!!v;
+  else if(k==='nq'||k==='nb'||k==='tt')$(k).value=v;
+  saveCfg();Remote.push();
+}
+function ui(){
+  if(st==='set')return{title:RT,settings:settingsUi(),foot:[{t:'เริ่มเกม',cmd:'start',ico:'play',k:'go'}]};
+  if(st==='end')return{title:RT,info:'สรุปคะแนน',teams:{items:teamsUi(),rank:true},buttons:[{t:'เล่นอีกครั้ง',cmd:'again',ico:'again'}]};
+  const q=qs[qi],items=teamsUi();
+  const o={title:RT,info:$('info').textContent,timer:(st==='ask'&&tsec)?tleft:null,minus:true,teams:{items},
+    cards:[{l:'โจทย์บนจอ',t:q.k==='fill'?q.tok.map((w,i)=>q.bl.has(i)?'____':w).join(' '):q.line,k:'q'},
+           {l:'เฉลย (เห็นเฉพาะมือถือ)',t:q.k==='fill'?q.tok.join(' '):q.ans,k:'a'}],
+    foot:[{t:'จบเกม',cmd:'end',ico:'stop',k:'ghost',confirm:'จบเกมตอนนี้?'}]};
+  if(st==='ask')o.buttons=[{t:'เฉลยขึ้นจอ',cmd:'reveal'}];
+  else if(st==='reveal'){o.teams={items,pick:true,label:'ทีมไหนตอบถูก?'};o.buttons=[{t:'ไม่มีทีมไหนถูก → ข้อต่อไป',cmd:'skip',ico:'next',k:'ghost'}]}
+  else o.msg='ให้คะแนนแล้ว กำลังไปข้อต่อไป…';
+  return o;
+}
+function run(c){
+  const i=+c.arg;
+  switch(c.cmd){
+    case'start':if(st==='set')startGame();break;
+    case'set':if(st==='set')applySet(c.arg);break;
+    case'reveal':doReveal();break;
+    case'award':if(i>=0&&i<sc.length)award(i);break;
+    case'skip':if(st==='reveal')next();break;
+    case'minus':if(st!=='set'&&st!=='end'&&sc[i]>0){sc[i]--;drawBoard()}break;
+    case'end':case'again':if(st!=='set')toSetup();break;
+  }
+}
+BGM.init({allow:()=>true});
+Remote.init({id:'gongyo-teams',needsSound:true,qrEl:$('qr'),txtEl:$('rtxt'),lobby:()=>st==='set'?'ท่องคัมภีร์ แข่งทีม':false,getUi:ui,onCmd:run});
+addEventListener('pointerdown',audio,{once:true});addEventListener('keydown',audio,{once:true});
+</script>
+</body>
+</html>

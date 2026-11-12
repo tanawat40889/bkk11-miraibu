@@ -1,0 +1,37 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:      # กดรันเองได้ เช่น หลังแก้เกมสุ่มสัตว์ในรีโพของมัน
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      # เกมสุ่มสัตว์อยู่ในรีโพของตัวเอง ดึงมารวมไว้ที่ /animal-random/
+      - uses: actions/checkout@v4
+        with:
+          repository: tanawat40889/bkk11-miraibu-animals
+          path: animal-random
+      - name: Remove files that should not be published
+        run: rm -rf animal-random/.git deploy server.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

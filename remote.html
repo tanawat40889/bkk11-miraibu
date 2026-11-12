@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>รีโมท · มิไรบุ</title>
+<link rel="stylesheet" href="shared/kids.css">
+<style>
+body{touch-action:manipulation}
+.still *{animation:none!important}
+.rem{--pad:14px;grid-template-rows:var(--hh) auto minmax(0,1fr) auto}
+.rem>header{gap:10px}
+.rem>main{justify-content:flex-start;align-items:stretch;gap:12px;padding:6px 2px 12px}
+.rem>footer{flex-direction:column;align-items:stretch;gap:8px;padding-top:6px}
+.hd{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.hd b{font-weight:600;font-size:clamp(18px,5vw,24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd span{font-size:13px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dot{flex:none;width:12px;height:12px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 4px rgba(125,255,166,.25)}
+#dot.off{background:var(--danger);box-shadow:0 0 0 4px rgba(255,107,129,.25)}
+#tl{font-weight:600;font-size:clamp(20px,6vw,28px);min-width:2.4em;text-align:right}
+.card{background:rgba(0,0,0,.26);border-radius:20px;padding:12px 16px;text-align:left;animation:rise .4s var(--ease) backwards}
+.card.c{box-shadow:0 0 0 3px rgba(255,255,255,.85)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.lb{font-size:13px;opacity:.8;margin-bottom:2px}
+.qt,.at{font-weight:600;font-size:clamp(22px,6vw,30px);line-height:1.4;word-spacing:.12em}
+.at{color:var(--mint)}
+.card.c .at{color:inherit}
+.rem .btn{width:100%;justify-content:center;font-size:clamp(20px,6vw,28px);padding:.6em 1em}
+.rem .btn.ghost{font-size:clamp(16px,4.6vw,20px);padding:.55em 1em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tb{border:0;color:inherit;padding:18px 8px;border-radius:22px;display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;
+  box-shadow:0 0 0 4px rgba(255,255,255,.85),0 14px 22px -12px rgba(0,0,0,.7);transition:transform .25s var(--pop);animation:pop-in .45s var(--pop) backwards}
+.tb:active{transform:scale(.93)}
+.tb b{font-size:clamp(16px,4.6vw,20px);font-weight:600}.tb span{font-size:clamp(30px,9vw,40px);font-weight:600;line-height:1.1}
+.h{font-size:17px;text-align:center;opacity:.92}
+.msg{text-align:center;font-size:19px;opacity:.92;padding:22px 10px;white-space:pre-line}
+.sc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.sc div{display:flex;align-items:center;gap:6px;border-radius:999px;padding:3px 3px 3px 12px;font-size:14px;font-weight:600}
+.sc .sv{background:rgba(0,0,0,.22);border-radius:999px;min-width:1.7em;padding:0 .4em;text-align:center}
+.sc button{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.28);color:inherit;border:0;font-size:19px;line-height:1;padding:0;cursor:pointer}
+.sc button:active{transform:scale(.88)}
+.rk{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;font-size:21px;font-weight:600;box-shadow:0 0 0 3px rgba(255,255,255,.85);animation:pop-in .45s var(--pop) backwards}
+.rk b{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk .medal{width:1.5em;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--m,rgba(0,0,0,.25));color:var(--ink);font-size:.85em}
+/* แถบเสียงกลาง: อยู่ทุกหน้า */
+#vol{display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:6px;border-radius:999px;background:rgba(0,0,0,.26);box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
+#vol .hbtn{width:40px}
+#vol.off{opacity:.45;pointer-events:none}
+#vp{min-width:2.6em;text-align:right;font-weight:600;font-size:15px}
+#vr{flex:1;min-width:0;height:34px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;touch-action:pan-y;cursor:pointer}
+#vr::-webkit-slider-runnable-track{height:12px;border-radius:99px;background:linear-gradient(90deg,var(--y) var(--p,70%),rgba(255,255,255,.22) var(--p,70%))}
+#vr::-moz-range-track{height:12px;border-radius:99px;background:rgba(255,255,255,.22)}
+#vr::-moz-range-progress{height:12px;border-radius:99px;background:var(--y)}
+#vr::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-9px;border-radius:50%;background:#fff;border:0;box-shadow:0 4px 10px -2px rgba(0,0,0,.5)}
+#vr::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:#fff;border:0;box-shadow:0 4px 10px -2px rgba(0,0,0,.5)}
+#vr:focus-visible{outline-offset:6px}
+/* ตั้งค่า */
+.fs{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);border-radius:22px;padding:14px;text-align:left}
+.sh{width:100%;font-size:13px;opacity:.85;margin-top:6px}.sh:first-child{margin-top:0}
+.fr{width:100%;display:flex;align-items:center;gap:8px}
+.fl{flex:1;font-size:15px;min-width:0}
+.fl i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--c)}
+.fs .fld{font-size:18px;padding:.25em .4em}
+.fs .fld.txt{width:100%;max-width:12em}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;font-size:22px;font-weight:600;line-height:1;padding:0;cursor:pointer}
+.step button:active{transform:scale(.88)}
+.step .fld{width:3.4em}
+.tagb{font:inherit;font-weight:600;border:0;padding:.45em 1em;border-radius:999px;background:rgba(0,0,0,.25);color:#fff;font-size:15px;cursor:pointer;transition:background .2s,color .2s,transform .2s var(--pop)}
+.tagb.on{background:var(--y);color:var(--ink)}
+.tagb:active{transform:scale(.94)}
+.cchips{width:100%;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.cc{position:relative;width:44px;height:44px;border-radius:50%;border:0;padding:0;background:var(--c);box-shadow:0 0 0 3px #fff;opacity:.4;transform:scale(.86);transition:transform .25s var(--pop),opacity .2s;cursor:pointer}
+.cc.on{opacity:1;transform:none}
+.cc::after{content:"";position:absolute;inset:0;margin:auto;width:46%;height:26%;border:solid var(--tk,#fff);border-width:0 0 4px 4px;border-radius:2px;transform:translateY(-12%) rotate(-45deg) scale(0);transition:transform .25s var(--pop)}
+.cc.on::after{transform:translateY(-12%) rotate(-45deg) scale(1)}
+/* รายการเกม */
+.gl{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gc{border:0;color:#fff;background:var(--cc);border-radius:22px;padding:10px 8px 12px;display:grid;grid-template-rows:76px auto;gap:4px;justify-items:center;cursor:pointer;font-weight:600;font-size:15px;line-height:1.2;
+  box-shadow:0 0 0 4px #fff,0 14px 22px -12px rgba(0,0,0,.7);transition:transform .25s var(--pop);animation:pop-in .45s var(--pop) backwards}
+.gc:active{transform:scale(.94)}
+.gc.cur{box-shadow:0 0 0 4px var(--y),0 14px 22px -12px rgba(0,0,0,.7)}
+.gc .a{width:100%;height:76px;min-height:0;overflow:hidden;display:grid;place-items:center}
+.gc .a svg,.gc .a img{max-width:100%;height:76px;width:auto;object-fit:contain}
+/* เมนูสลับเกม */
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(20,10,50,.9);display:none;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));gap:12px;overflow:auto}
+.sheet.on{display:flex;animation:scr-in .3s var(--ease)}
+.sheet .top{display:flex;align-items:center;gap:10px;font-weight:600;font-size:22px}
+.sheet .top .hdr-sp{flex:1}
+.sw{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:var(--y);color:var(--ink);font-weight:600;padding:.6em 1.2em;border-radius:999px;box-shadow:0 12px 24px -10px rgba(0,0,0,.6);animation:pop-in .3s var(--pop);white-space:nowrap}
+</style>
+</head>
+<body>
+<section class="scr rem on">
+  <header><button class="hbtn" id="menu" data-ico="grid" aria-label="สลับเกม"></button><div class="hd"><b id="ttl">รีโมท</b><span id="info"></span></div><div class="hdr-sp"></div><span id="tl"></span><i id="dot" class="off"></i></header>
+  <div id="vol" class="off"><button class="hbtn" id="vm" aria-label="ปิด/เปิดเสียง"></button><input id="vr" type="range" min="0" max="100" step="1" value="70" aria-label="ระดับเสียง"><span id="vp">70%</span></div>
+  <main id="main"></main>
+  <footer id="foot"></footer>
+</section>
+<div class="sheet" id="sheet"></div>
+
+<script src="shared/kids.js"></script>
+<script src="shared/games.js"></script>
+<script src="shared/config.js"></script>
+<script src="shared/net.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const MED=['#ffd23f','#dfe6f0','#e08a4d'];
+let cur=null,pend=null,sw=null;
+
+function raw(cmd,arg){Net.postCmd(cmd,arg).catch(()=>{})}
+function send(cmd,arg){navigator.vibrate&&navigator.vibrate(30);raw(cmd,arg)}
+function goto(g){ // สลับเกมบนจอหลักทันที
+  pend={id:g?g.id:'picker',t:Date.now()};send('goto',g?g.u:'');$('sheet').classList.remove('on');
+  clearTimeout(sw&&sw.t);if(sw)sw.e.remove();
+  sw={e:el('div','sw','กำลังสลับไป '+(g?g.n:'หน้าเลือกเกม')+'…')};document.body.append(sw.e);
+  sw.t=setTimeout(()=>{sw.e.remove();sw=null;pend=null},5000);
+}
+function btn(b){
+  const e=el('button','btn'+(b.k==='ghost'?' ghost':'')+(b.k==='go'?' go':''));
+  if(b.ico&&Kids.ICON[b.ico])e.insertAdjacentHTML('afterbegin',Kids.ICON[b.ico]);
+  e.append(document.createTextNode(b.t));
+  e.onclick=()=>{if(b.confirm&&!confirm(b.confirm))return;send(b.cmd,b.arg)};
+  return e;
+}
+function gameCard(g,i,curId){
+  const e=el('button','gc'+(g&&g.id===curId?' cur':''));e.style.setProperty('--cc',g?g.c:'#4a2fa8');e.style.animationDelay=i*50+'ms';
+  const a=el('div','a');a.innerHTML=g?g.art:Kids.ICON.home.replace('<svg','<svg style="width:56px;height:56px;fill:#fff"');
+  e.append(a,document.createTextNode(g?g.n:'หน้าแรก (เลือกเกม)'));e.onclick=()=>goto(g);return e;
+}
+function gameList(curId){const l=el('div','gl');(curId==='picker'?GAMES:[null,...GAMES]).forEach((g,i)=>l.append(gameCard(g,i,curId)));return l}
+
+function openMenu(){
+  const s=$('sheet');s.replaceChildren();
+  const top=el('div','top');top.append(el('span','','สลับเกม'),el('div','hdr-sp'));
+  const x=el('button','hbtn');x.insertAdjacentHTML('afterbegin',Kids.ICON.close);x.setAttribute('aria-label','ปิด');x.onclick=()=>s.classList.remove('on');top.append(x);
+  s.append(top,gameList(cur&&cur.game));if(window.__roomBtn)s.append(window.__roomBtn);s.classList.add('on');
+}
+$('menu').onclick=openMenu;Kids.icons($('menu').parentNode);
+
+/* ---- ตั้งค่าเกมจากมือถือ (ฟอร์มสร้างจากรายการ settings ที่เกมส่งมา) ---- */
+const tmr={};
+function sendSet(k,v,delay){clearTimeout(tmr[k]);tmr[k]=setTimeout(()=>send('set',{k,v}),delay||0)}
+function field(f){
+  if(f.type==='h')return el('div','sh',f.t);
+  if(f.type==='toggle'){
+    const b=el('button','tagb'+(f.v?' on':''),f.t);b.setAttribute('aria-pressed',!!f.v);
+    b.onclick=()=>{const v=!b.classList.contains('on');b.classList.toggle('on',v);b.setAttribute('aria-pressed',v);send('set',{k:f.k,v})};return b;
+  }
+  if(f.type==='colors'){
+    const w=el('div','cchips'),on=new Set(f.v);
+    f.opts.forEach((o,i)=>{const b=el('button','cc'+(on.has(i)?' on':''));b.style.setProperty('--c',o.c);b.style.setProperty('--tk',o.f||'#fff');b.setAttribute('aria-label',o.n);b.setAttribute('aria-pressed',on.has(i));
+      b.onclick=()=>{on.has(i)?on.delete(i):on.add(i);b.classList.toggle('on',on.has(i));b.setAttribute('aria-pressed',on.has(i));send('set',{k:f.k,v:[...on]})};w.append(b)});
+    return w;
+  }
+  const row=el('div','fr'),lb=el('label','fl');
+  if(f.c){const d=el('i');d.style.setProperty('--c',f.c);lb.append(d)}lb.append(document.createTextNode(f.t));row.append(lb);
+  if(f.type==='number'){
+    const w=el('div','step'),i=el('input','fld');i.type='number';i.inputMode='numeric';i.value=f.v;
+    const cl=v=>Math.min(f.max==null?1e9:f.max,Math.max(f.min==null?-1e9:f.min,Math.round(+v||0)));
+    const bump=d=>{const v=cl((+i.value||0)+d*(f.step||1));i.value=v;sendSet(f.k,v,0)};
+    const m=el('button','','−'),p=el('button','','+');m.setAttribute('aria-label','ลด '+f.t);p.setAttribute('aria-label','เพิ่ม '+f.t);
+    m.onclick=()=>bump(-1);p.onclick=()=>bump(1);
+    i.oninput=()=>{if(i.value!=='')sendSet(f.k,cl(i.value),500)};i.onchange=()=>{i.value=cl(i.value);sendSet(f.k,+i.value,0)};
+    w.append(m,i,p);row.append(w);if(f.u)row.append(el('span','',f.u));
+  }else{ // text
+    const i=el('input','fld txt');i.type='text';i.value=f.v;i.setAttribute('aria-label',f.t);i.oninput=()=>sendSet(f.k,i.value,400);row.append(i);
+  }
+  return row;
+}
+function settingsPanel(list){const p=el('div','fs');list.forEach(f=>p.append(field(f)));return p}
+
+let lastSig='';
+function render(s,off){
+  const m=$('main'),f=$('foot'),sy=m.scrollTop;m.replaceChildren();f.replaceChildren();
+  /* อนิเมชันเข้าเล่นเฉพาะตอนหน้าจอเปลี่ยนจริง (ไม่เล่นซ้ำทุกครั้งที่ตัวเลขนับเวลาขยับ) */
+  const sig=off?'off':[s.game,s.msg,(s.buttons||[]).map(b=>b.t).join(),(s.cards||[]).map(c=>c.t).join(),s.teams&&s.teams.pick,s.teams&&s.teams.rank].join('|');
+  const same=sig===lastSig;m.classList.toggle('still',same);f.classList.toggle('still',same);lastSig=sig;
+  $('dot').className=off?'off':'';
+  $('ttl').textContent=off?'รีโมท':(s.title||'รีโมท');
+  $('info').textContent=off?'':(s.info||'');
+  $('tl').textContent=(!off&&s.timer!=null)?s.timer:'';
+  if(off){m.append(el('div','msg','รอเชื่อมต่อจอหลัก…\nเปิดหน้าเว็บบนจอใหญ่ก่อน'));return}
+  if(s.msg)m.append(el('div','msg',s.msg));
+  if(s.settings)m.append(settingsPanel(s.settings));
+  (s.cards||[]).forEach((c,i)=>{
+    const d=el('div','card'+(c.c?' c':''));if(c.c){d.style.background=c.c;d.style.color=c.f||'#fff'}d.style.animationDelay=i*70+'ms';
+    d.append(el('div','lb',c.l),el('div',c.k==='a'?'at':'qt',c.t));m.append(d);
+  });
+  if(s.games)m.append(el('div','h','เลือกเกมที่จะเล่น'),gameList(s.game));
+  const T=s.teams;
+  if(T&&T.rank){
+    m.append(el('div','h','สรุปคะแนน'));
+    [...T.items].map((t,i)=>({...t,i})).sort((a,b)=>b.v-a.v).forEach((t,k)=>{
+      const d=el('div','rk');d.style.background=t.c;d.style.color=t.f;d.style.animationDelay=k*90+'ms';
+      const md=el('span','medal',k+1);if(MED[k])md.style.setProperty('--m',MED[k]);d.append(md,el('b','',t.n),el('span','',t.v));m.append(d)});
+  }else if(T&&T.pick){
+    m.append(el('div','h',T.label||'ให้คะแนนทีมไหน?'));
+    const g=el('div','grid');
+    T.items.forEach((t,i)=>{const b=el('button','tb');b.style.background=t.c;b.style.color=t.f;b.style.animationDelay=i*50+'ms';b.append(el('b','',t.n),el('span','',t.v));b.onclick=()=>send(T.cmd||'award',i);g.append(b)});
+    m.append(g);
+  }
+  (s.buttons||[]).forEach(b=>m.append(btn(b)));
+  if(s.minus&&T&&T.items&&!T.rank){
+    const sc=el('div','sc');
+    T.items.forEach((t,i)=>{const d=el('div');d.style.background=t.c;d.style.color=t.f;const mb=el('button','','−');mb.setAttribute('aria-label','ลด 1 คะแนน '+t.n);mb.onclick=()=>send('minus',i);d.append(el('span','',t.n),el('span','sv',t.v),mb);sc.append(d)});
+    f.append(el('div','lb','แก้คะแนน (−1)'),sc);
+  }
+  (s.foot||[]).forEach(b=>f.append(btn(b)));
+  if(same)m.scrollTop=sy;
+}
+
+/* ---- แถบเสียงกลาง (ควบคุมเสียงทุกอย่างบนจอใหญ่) ---- */
+let drag=false,vsend=0;
+function paintVol(v,m){
+  const p=m?0:v;$('vr').value=p;$('vr').style.setProperty('--p',p+'%');$('vp').textContent=m?'ปิดเสียง':p+'%';
+  $('vm').innerHTML=Kids.ICON[m||v===0?'mute':'vol'];
+}
+$('vm').onclick=()=>{navigator.vibrate&&navigator.vibrate(20);send('mute')};
+$('vr').addEventListener('input',()=>{
+  drag=true;const v=+$('vr').value;paintVol(v,false);
+  const now=Date.now();if(now-vsend>90){vsend=now;raw('vol',v)}
+});
+$('vr').addEventListener('change',()=>{raw('vol',+$('vr').value);setTimeout(()=>{drag=false},400)});
+function syncVol(s,off){
+  $('vol').classList.toggle('off',off);
+  if(off||drag)return;
+  const v=s.vol||{v:70,m:false};paintVol(v.v,v.m);
+}
+paintVol(70,false);
+
+let last='',pendR=null;
+$('main').addEventListener('focusout',()=>setTimeout(()=>{if(pendR&&!($('main').contains(document.activeElement)&&document.activeElement.tagName==='INPUT')){const[a,b]=pendR;pendR=null;render(a,b)}},50));
+async function tick(){
+  try{
+    const r=await Net.getState();
+    const s=r.state,off=!s||r.age==null||r.age>6;
+    cur=off?null:s;
+    syncVol(s,off);
+    if(pend&&!off&&s.game===pend.id){pend=null;if(sw){sw.e.remove();clearTimeout(sw.t);sw=null}}
+    const k=JSON.stringify([s,off]);
+    if(k!==last){last=k;const ae=document.activeElement;if(ae&&ae.tagName==='INPUT'&&$('main').contains(ae))pendR=[s,off];else render(s,off)}
+  }catch(e){if(last!=='x'){last='x';cur=null;render(null,true)}}
+}
+
+/* ---- เริ่มทำงาน: เลือกช่องทาง (เครื่อง/ออนไลน์) และรหัสห้อง ---- */
+function roomForm(){
+  const m=$('main'),f=$('foot');m.replaceChildren();f.replaceChildren();$('vol').classList.add('off');
+  const box=el('div','fs');box.style.justifyContent='center';
+  const lb=el('div','h','ใส่รหัสห้องที่แสดงบนจอใหญ่ (หรือสแกน QR)');lb.style.width='100%';
+  const inp=el('input','fld txt');inp.type='text';inp.maxLength=16;inp.autocapitalize='characters';inp.autocomplete='off';inp.placeholder='เช่น K7M2QX';inp.style.textTransform='uppercase';inp.setAttribute('aria-label','รหัสห้อง');
+  const b=el('button','btn','เชื่อมต่อ');b.style.marginTop='6px';
+  const go=()=>{if(Net.setRoom(inp.value).length>=4)begin();};
+  b.onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};
+  box.append(lb,inp);m.append(box,b);setTimeout(()=>inp.focus(),50);
+}
+function begin(){render(null,true);tick();setInterval(tick,Net.watchMs());
+  if(Net.mode==='cloud'){const c=el('button','btn ghost','รหัสห้อง '+Net.room+' · เปลี่ยน');c.onclick=()=>{const r=prompt('รหัสห้อง',Net.room);if(r){Net.setRoom(r);location.reload()}};$('menu').dataset.room=Net.room;window.__roomBtn=c}}
+(async()=>{
+  await Net.detect();
+  if(Net.mode==='none'){render(null,true);$('main').replaceChildren(el('div','msg','ยังไม่ได้ตั้งค่าตัวกลางรีโมท\n(รัน python3 server.py หรือใส่ค่าใน shared/config.js)'));return}
+  if(Net.mode==='cloud'){Net.initRoom('remote');if(!Net.room){roomForm();return}}
+  begin();
+})();
+</script>
+</body>
+</html>

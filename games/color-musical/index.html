@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เก้าอี้ดนตรี สีกระดาษ</title>
+<link rel="stylesheet" href="../../shared/kids.css">
+<style>
+/* ---------- ตั้งค่า ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:clamp(8px,1.4vw,16px);justify-content:center;max-width:min(100%,720px)}
+.chip{position:relative;width:clamp(46px,8dvh,74px);aspect-ratio:1;border-radius:50%;border:0;cursor:pointer;padding:0;background:var(--c);
+  box-shadow:0 0 0 4px #fff,0 10px 18px -8px rgba(0,0,0,.6);opacity:.42;transform:scale(.88);transition:transform .35s var(--pop),opacity .2s}
+.chip.on{opacity:1;transform:scale(1)}
+.chip:hover{transform:scale(1.1) rotate(-6deg)}
+.chip::after{content:"";position:absolute;inset:0;margin:auto;width:46%;height:26%;border:solid var(--tick,#fff);border-width:0 0 5px 5px;border-radius:2px;transform:translateY(-12%) rotate(-45deg) scale(0);transition:transform .3s var(--pop)}
+.chip.on::after{transform:translateY(-12%) rotate(-45deg) scale(1)}
+
+/* ---------- ระหว่างเล่นเพลง ---------- */
+.stagewrap{position:relative;display:grid;place-items:center;width:clamp(150px,34dvh,360px);aspect-ratio:1}
+#note{width:78%;animation:dance .55s ease-in-out infinite alternate;filter:drop-shadow(0 14px 18px rgba(0,0,0,.35))}
+@keyframes dance{from{transform:rotate(-12deg) translateY(0)}to{transform:rotate(12deg) translateY(-7%)}}
+.stagewrap::before,.stagewrap::after{content:"";position:absolute;inset:6%;border-radius:50%;box-shadow:0 0 0 6px rgba(255,255,255,.35);animation:wave 2.4s var(--ease) infinite}
+.stagewrap::after{animation-delay:1.2s}
+@keyframes wave{from{transform:scale(.55);opacity:.9}to{transform:scale(1.35);opacity:0}}
+.eq{display:flex;gap:clamp(6px,1.2vw,14px);align-items:flex-end;height:clamp(34px,7dvh,70px)}
+.eq i{width:clamp(10px,1.6vw,18px);height:100%;border-radius:99px;background:var(--b);transform-origin:bottom;animation:eq var(--t) ease-in-out infinite alternate}
+@keyframes eq{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+#msg{font-weight:600;font-size:clamp(26px,5.6dvh + 1vw,72px);line-height:1.1;transition:color .2s}
+#s-play.warn #note{animation:shake .12s linear infinite}
+#s-play.warn .stagewrap::before,#s-play.warn .stagewrap::after{animation-duration:.7s;box-shadow:0 0 0 8px rgba(255,107,129,.8)}
+#s-play.warn .eq i{animation-duration:.18s}
+#s-play.warn #msg{color:var(--y)}
+@keyframes shake{25%{transform:rotate(-10deg) translateX(-4%)}75%{transform:rotate(10deg) translateX(4%)}}
+
+/* ---------- หยุด! แสดงสี ---------- */
+#flood{position:fixed;inset:0;z-index:0;background:var(--c,#000);clip-path:circle(0% at 50% 50%);pointer-events:none}
+#flood.on{animation:flood .6s var(--ease) forwards}
+#flood.out{clip-path:circle(150% at 50% 50%);animation:floodout .35s ease-out forwards}
+@keyframes flood{to{clip-path:circle(150% at 50% 50%)}}
+@keyframes floodout{to{opacity:0}}
+#s-stop{color:var(--fg,#fff)}
+#s-stop .ring{--rin:var(--c);background:conic-gradient(var(--fg) calc(var(--p)*1%),rgba(0,0,0,.22) 0)}
+#s-stop .ring.zero{background:var(--danger)}
+#cname{font-weight:600;font-size:clamp(80px,30dvh,380px);line-height:1;text-shadow:0 10px 30px rgba(0,0,0,.25)}
+#cname.pop{animation:namepop .75s var(--pop) .12s backwards}
+@keyframes namepop{from{transform:scale(.2) rotate(-14deg);opacity:0}}
+#s-stop .btn.ghost{box-shadow:inset 0 0 0 2px currentColor;background:transparent}
+</style>
+</head>
+<body>
+<div id="flood"></div>
+
+<section id="s-set" class="scr on">
+  <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl">เก้าอี้ดนตรี · เหยียบสี</h1></header>
+  <main>
+    <div class="lbl">เลือกสีที่มีกระดาษ</div>
+    <div class="chips" id="chips"></div>
+    <div class="panel col">
+      <div class="row">เพลงเล่นนาน <input class="fld" id="mn" type="number" min="3" value="8"> – <input class="fld" id="mx" type="number" min="3" value="20"> วินาที</div>
+      <div class="row">หลอกว่าจะหยุด สูงสุด <input class="fld" id="fakes" type="number" min="0" value="2"> ครั้ง/รอบ <small>(สุ่ม, 0 = ไม่หลอก)</small></div>
+      <div class="row">ให้เวลาเหยียบสี <input class="fld" id="hold" type="number" min="2" value="6"> วินาที</div>
+    </div>
+    <div class="err" id="err" role="status"></div>
+    <div class="rurl"><div id="qr" hidden></div><div id="rtxt"></div></div>
+  </main>
+  <footer><button id="start" class="btn go" data-ico="play"> เริ่มเกม</button></footer>
+</section>
+
+<section id="s-play" class="scr">
+  <header><button class="hbtn" id="end" data-ico="stop" aria-label="จบเกม"></button><div class="hdr-sp"></div><div class="ttl sm" id="rnd"></div></header>
+  <main>
+    <div class="stagewrap">
+      <svg id="note" viewBox="0 0 100 100" aria-hidden="true"><g fill="#fff" stroke="#241552" stroke-width="3.5" stroke-linejoin="round"><ellipse cx="34" cy="76" rx="17" ry="12.5" transform="rotate(-18 34 76)"/><rect x="46" y="14" width="8" height="62" rx="4"/><path d="M54 14c14 4 25 11 23 30-7-8-14-11-23-12Z"/></g></svg>
+    </div>
+    <div class="eq" aria-hidden="true"></div>
+    <div id="msg">เดินไปเรื่อยๆ!</div>
+  </main>
+  <footer><button class="btn ghost" id="skip" data-ico="next"> ข้าม</button></footer>
+</section>
+
+<section id="s-stop" class="scr">
+  <header><button class="hbtn" id="end2" data-ico="stop" aria-label="จบเกม"></button><div class="hdr-sp"></div><div class="ttl sm" id="rnd2"></div></header>
+  <main><div id="cname"></div></main>
+  <footer><div id="ring" class="ring"><span id="cnt"></span></div><button class="btn ghost" id="skip2" data-ico="next"> ข้าม</button></footer>
+</section>
+
+<script src="../../shared/kids.js"></script>
+<script src="../../shared/vol.js"></script>
+<script src="../../shared/bgm.js"></script>
+<script src="../../shared/qrcode.js"></script>
+<script src="../../shared/lobby.js"></script>
+<script src="../../shared/config.js"></script>
+<script src="../../shared/net.js"></script>
+<script src="../../shared/remote-client.js"></script>
+<div id="yt" style="position:fixed;left:-9999px;top:0;width:200px;height:200px"><div id="ytp"></div></div>
+<script>
+const VID='tFQPQqltAmY';
+const COLORS=[
+ {n:'แดง',c:'#d62839',f:'#fff'},{n:'ส้ม',c:'#ff8a00',f:'#2b1300'},{n:'เหลือง',c:'#ffd23f',f:'#3a2f00'},
+ {n:'เขียว',c:'#2ea84f',f:'#06210f'},{n:'ฟ้า',c:'#29b6f6',f:'#06293a'},{n:'น้ำเงิน',c:'#1d4ed8',f:'#fff'},
+ {n:'ม่วง',c:'#8e44ad',f:'#fff'},{n:'ชมพู',c:'#ff6fae',f:'#3a0a22'},{n:'ขาว',c:'#ffffff',f:'#222'},{n:'ดำ',c:'#161616',f:'#fff'}
+];
+const $=id=>document.getElementById(id);
+let sel=new Set([0,1,2,3,4,6,7]);
+/* จำค่าตั้งค่าไว้ในเครื่อง (สลับเกมแล้วกลับมาค่าเดิมยังอยู่) */
+const KEY='miraibu.color-musical',NK=['mn','mx','fakes','hold'];
+function saveCfg(){try{localStorage.setItem(KEY,JSON.stringify({sel:[...sel],...Object.fromEntries(NK.map(k=>[k,$(k).value]))}))}catch(_){}}
+(function(){try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(!c)return;if(Array.isArray(c.sel))sel=new Set(c.sel);NK.forEach(k=>{if(c[k]!=null)$(k).value=c[k]})}catch(_){}})();
+function refreshChips(){[...$('chips').children].forEach((b,i)=>{b.classList.toggle('on',sel.has(i));b.setAttribute('aria-pressed',sel.has(i))})}
+COLORS.forEach((k,i)=>{const b=document.createElement('button');b.className='chip';b.style.setProperty('--c',k.c);b.style.setProperty('--tick',k.f);
+  b.setAttribute('aria-label',k.n);
+  b.onclick=()=>{sel.has(i)?sel.delete(i):sel.add(i);refreshChips();saveCfg();Remote.push()};$('chips').append(b)});
+refreshChips();
+NK.forEach(k=>$(k).addEventListener('input',()=>{saveCfg();Remote.push()}));
+const EQC=['#ff4d6d','#ffd23f','#29b6f6','#34c77b','#a66bff','#ff9f1c','#ff6fae'];
+document.querySelector('.eq').append(...EQC.map((c,i)=>{const e=document.createElement('i');e.style.cssText=`--b:${c};--t:${(.28+((i*37)%10)/22).toFixed(2)}s`;return e}));
+
+/* ---- sound ---- */
+let ac;function audio(){if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}
+function tone(f,t0,d,type='square',v=.15){const k=window.Vol?Vol.get():1;if(!ac||!k)return;v*=k;const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;o.connect(g);g.connect(ac.destination);
+  const t=ac.currentTime+t0;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}
+const buzz=()=>{tone(880,0,.15);tone(660,.16,.35)};
+const chime=()=>{tone(523,0,.15,'triangle');tone(784,.12,.25,'triangle')};
+
+/* ---- youtube ---- */
+let yt,ytReady=false;
+YTReady(()=>{yt=new YT.Player('ytp',{width:200,height:200,videoId:VID,playerVars:{playsinline:1,controls:0,rel:0},
+  events:{onReady:()=>{ytReady=true},
+   onStateChange:e=>{if(e.data===YT.PlayerState.ENDED&&state==='play'){yt.seekTo(0);yt.playVideo()}},
+   onError:e=>{$('err').textContent='เล่นเพลงไม่ได้ (error '+e.data+') — ถ้าเปิดไฟล์ตรงๆ ให้รันผ่าน http เช่น python3 -m http.server';end()}}})});
+
+/* ---- game ---- */
+let state='set',timer=0,tick=0,deck=[],last=-1,round=0,fk=[],fiv=0,curK=null,holdLeft=0;
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id))}
+function flood(c){
+  const fl=$('flood');
+  if(c){fl.style.setProperty('--c',c.c);$('s-stop').style.setProperty('--fg',c.f);$('s-stop').style.setProperty('--c',c.c);
+    fl.classList.remove('on','out');void fl.offsetWidth;fl.classList.add('on');document.body.classList.add('paper')}
+  else if(fl.classList.contains('on')){fl.classList.remove('on');fl.classList.add('out');document.body.classList.remove('paper');
+    fl.addEventListener('animationend',()=>fl.classList.remove('out'),{once:true})}
+  else document.body.classList.remove('paper');
+}
+function nextColor(){
+  if(!deck.length){deck=[...sel].sort(()=>Math.random()-.5);if(deck.length>1&&deck[deck.length-1]===last)deck.reverse()}
+  return last=deck.pop();
+}
+function startGame(){
+  if(sel.size<2){$('err').textContent='เลือกอย่างน้อย 2 สี';return}
+  if(!ytReady){$('err').textContent='กำลังโหลดเพลง... ลองกดอีกครั้ง';return}
+  $('err').textContent='';audio();round=0;deck=[];last=-1;music();
+}
+function clr(){clearTimeout(timer);fk.forEach(clearTimeout);fk=[];clearInterval(fiv);clearInterval(tick);$('s-play').classList.remove('warn');$('msg').textContent='เดินไปเรื่อยๆ!'}
+/* หลอก: เสียงค่อยๆ เบาลงจนเงียบ แล้วเด้งกลับมาเล่นต่อ (เพลงไม่ได้หยุดจริง) */
+const DIP=1200;
+function fake(){
+  const t0=Date.now(),hold=500+Math.random()*700;
+  $('s-play').classList.add('warn');$('msg').textContent='ใกล้หยุดแล้ว...!';Remote.push();
+  fiv=setInterval(()=>{const p=Math.min((Date.now()-t0)/DIP,1);yt.setVolume(Math.round(Vol.pct()*(1-p)*(1-p)));if(p>=1)clearInterval(fiv)},60);
+  fk.push(setTimeout(()=>{
+    clearInterval(fiv);yt.setVolume(Vol.pct());$('s-play').classList.remove('warn');$('msg').textContent='หลอกกก!';chime();Remote.push();
+    $('msg').classList.remove('wiggle');void $('msg').offsetWidth;$('msg').classList.add('wiggle');
+    fk.push(setTimeout(()=>{if(state==='play'){$('msg').textContent='เดินไปเรื่อยๆ!';$('msg').classList.remove('wiggle')}},1500));
+  },DIP+hold));
+}
+function music(){
+  clr();state='play';round++;
+  flood(null);$('rnd').textContent='รอบที่ '+round;show('s-play');
+  yt.setVolume(Vol.pct());yt.playVideo();BGM.sync();
+  let a=Math.max(3,+$('mn').value||8),b=Math.max(a,+$('mx').value||20);
+  const total=(a+Math.random()*(b-a))*1000;
+  timer=setTimeout(stop,total);
+  const n=Math.floor(Math.random()*(Math.max(0,+$('fakes').value||0)+1)),ts=[];
+  for(let i=0;i<n;i++){
+    const lo=2000,hi=total-3400;if(hi<lo)break;
+    const t=lo+Math.random()*(hi-lo);if(ts.every(x=>Math.abs(x-t)>5000))ts.push(t);
+  }
+  ts.forEach(t=>fk.push(setTimeout(fake,t)));
+  Remote.push();
+}
+function stop(){
+  clr();state='stop';
+  yt.pauseVideo();buzz();
+  const k=COLORS[nextColor()],hold=Math.max(2,+$('hold').value||6),ring=$('ring');curK=k;holdLeft=hold;
+  flood(k);
+  $('cname').textContent=k.n;$('cname').classList.remove('pop');void $('cname').offsetWidth;$('cname').classList.add('pop');
+  $('rnd2').textContent='รอบที่ '+round;
+  show('s-stop');navigator.vibrate&&navigator.vibrate([100,50,200]);
+  const t0=Date.now();
+  ring.classList.remove('zero','hurry');
+  const upd=()=>{const el=(Date.now()-t0)/1000,left=Math.ceil(hold-el);ring.style.setProperty('--p',Math.max(0,100-el/hold*100));$('cnt').textContent=Math.max(left,0);holdLeft=Math.max(left,0);
+    ring.classList.toggle('hurry',left<=3&&left>0);
+    if(el>=hold){clearInterval(tick);chime();music()}};
+  upd();tick=setInterval(upd,100);Remote.push();
+}
+function end(){clr();state='set';if(yt&&yt.pauseVideo)yt.pauseVideo();flood(null);show('s-set');Remote.push();BGM.sync()}
+function skip(){state==='play'?stop():state==='stop'?(clearInterval(tick),music()):0}
+$('start').onclick=startGame;
+$('skip').onclick=$('skip2').onclick=skip;
+$('end').onclick=$('end2').onclick=end;
+addEventListener('keydown',e=>{if(e.key===' '&&state!=='set'){e.preventDefault();skip()}if(e.key==='Escape')end()});
+
+/* เกมนี้มีเพลงของตัวเอง → เพลงพื้นหลังดังเฉพาะตอนตั้งค่า (ระหว่างเล่นต้องเงียบ เพราะ "เพลงหยุด" คือสัญญาณของเกม) */
+BGM.init({allow:()=>state==='set'});
+Vol.on(()=>{if(state==='play'&&yt&&!$('s-play').classList.contains('warn'))yt.setVolume(Vol.pct())});
+const RT='เก้าอี้ดนตรี';
+const NUMS={mn:{t:'เพลงเล่นนานอย่างน้อย',min:3,u:'วิ'},mx:{t:'เพลงเล่นนานอย่างมาก',min:3,u:'วิ'},fakes:{t:'หลอกว่าจะหยุด สูงสุด',min:0,max:5,u:'ครั้ง/รอบ'},hold:{t:'เวลาเหยียบสี',min:2,u:'วิ'}};
+function settingsUi(){return[{type:'h',t:'สีที่มีกระดาษ'},{k:'colors',type:'colors',v:[...sel],opts:COLORS.map(c=>({n:c.n,c:c.c,f:c.f}))},{type:'h',t:'จังหวะเพลง'},
+  ...NK.map(k=>({k,type:'number',t:NUMS[k].t,v:+$(k).value||0,min:NUMS[k].min,max:NUMS[k].max,u:NUMS[k].u}))]}
+function applySet(a){if(!a)return;if(a.k==='colors')sel=new Set(a.v);else if(NUMS[a.k])$(a.k).value=a.v;refreshChips();saveCfg();Remote.push()}
+Remote.init({id:'color-musical',needsSound:true,qrEl:$('qr'),txtEl:$('rtxt'),lobby:()=>state==='set'?'เก้าอี้ดนตรี เหยียบสี':false,
+  getUi:()=>{
+    const END={t:'จบเกม',cmd:'end',ico:'stop',k:'ghost',confirm:'จบเกมตอนนี้?'};
+    if(state==='set')return{title:RT,settings:settingsUi(),foot:[{t:'เริ่มเกม',cmd:'start',ico:'play',k:'go'}]};
+    if(state==='play')return{title:RT,info:'รอบที่ '+round,msg:$('msg').textContent,buttons:[{t:'หยุดเพลงเลย',cmd:'skip',ico:'next'}],foot:[END]};
+    return{title:RT,info:'รอบที่ '+round,timer:holdLeft,cards:[{l:'สีที่ขึ้นบนจอ',t:curK?curK.n:'',c:curK&&curK.c,f:curK&&curK.f}],buttons:[{t:'เล่นเพลงต่อเลย',cmd:'skip',ico:'next'}],foot:[END]};
+  },
+  onCmd:c=>{
+    if(c.cmd==='start'&&state==='set')startGame();
+    else if(c.cmd==='set'&&state==='set')applySet(c.arg);
+    else if(c.cmd==='skip')skip();
+    else if(c.cmd==='end'&&state!=='set')end();
+  }});
+</script>
+</body>
+</html>
