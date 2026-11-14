@@ -8,12 +8,8 @@
 <style>
 /* ---------- ตั้งค่า: เลือกโซน (วางเหมือนห้องจริง แถวบน = หน้าห้อง) ---------- */
 .zsel{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1.4vw,16px);width:min(100%,560px)}
-.zc{border:0;cursor:pointer;font-weight:600;font-size:clamp(18px,2.8dvh + .8vw,34px);padding:.7em .4em;border-radius:22px;background:var(--c);color:var(--f);
-  opacity:.4;transform:scale(.94);transition:transform .35s var(--pop),opacity .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:.4em}
-.zc.on{opacity:1;transform:none;box-shadow:0 0 0 4px #fff,0 12px 20px -10px rgba(0,0,0,.6)}
-.zc:hover{transform:scale(1.04) rotate(-1.5deg)}
-.zc .ic{width:1em;height:1em;opacity:0;transform:scale(.4);transition:.3s var(--pop)}
-.zc.on .ic{opacity:1;transform:none}
+.zc{font-weight:600;font-size:clamp(18px,2.8dvh + .8vw,34px);padding:.7em .4em;border-radius:22px;background:var(--c);color:var(--f);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px #fff,0 12px 20px -10px rgba(0,0,0,.6)}
 .zlab{font-size:clamp(13px,2dvh + .3vw,22px);opacity:.85}
 
 /* ---------- ระหว่างเล่นเพลง ---------- */
@@ -60,7 +56,7 @@
 <section id="s-set" class="scr on">
   <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl" data-fx="party-popper">เก้าอี้ดนตรี · 4 โซน</h1></header>
   <main>
-    <div class="lbl">เลือกโซนที่ใช้ (วางตามห้องจริง)</div>
+    <div class="lbl">ใช้ทั้ง 4 โซน (วางตามห้องจริง)</div>
     <div class="zlab">หน้าห้อง (ใกล้จอ)</div>
     <div class="zsel" id="zsel"></div>
     <div class="zlab">หลังห้อง</div>
@@ -118,23 +114,15 @@ const ZONES=[
  {n:'หลังซ้าย',c:'#2ea84f',f:'#06210f'},{n:'หลังขวา',c:'#ffd23f',f:'#3a2f00'}
 ];
 const $=id=>document.getElementById(id);
-let sel=new Set([0,1,2,3]);
+const sel=new Set([0,1,2,3]);   // ใช้ครบทั้ง 4 โซนเสมอ
 /* จำค่าตั้งค่าไว้ในเครื่อง (สลับเกมแล้วกลับมาค่าเดิมยังอยู่) */
 const KEY='miraibu.zones-musical',NK=['mn','mx','fakes','hold'];
-function saveCfg(){try{localStorage.setItem(KEY,JSON.stringify({sel:[...sel],...Object.fromEntries(NK.map(k=>[k,$(k).value]))}))}catch(_){}}
-(function(){try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(!c)return;if(Array.isArray(c.sel)&&c.sel.filter(i=>ZONES[i]).length>=2)sel=new Set(c.sel.filter(i=>ZONES[i]));NK.forEach(k=>{if(c[k]!=null)$(k).value=c[k]})}catch(_){}})();
-const setZone=(i,on)=>{if(on)sel.add(i);else if(sel.size>2)sel.delete(i);refreshZones();saveCfg();Remote.push()};
-function refreshZones(){
-  [...$('zsel').children].forEach((b,i)=>{b.classList.toggle('on',sel.has(i));b.setAttribute('aria-pressed',sel.has(i))});
-  [...$('zmini').children].forEach((b,i)=>{b.style.display=sel.has(i)?'':'none'});
-}
-ZONES.forEach((z,i)=>{
-  const b=document.createElement('button');b.className='zc';b.style.setProperty('--c',z.c);b.style.setProperty('--f',z.f);
-  b.innerHTML=Kids.ICON.check+' ';b.append(document.createTextNode(z.n));
-  b.onclick=()=>setZone(i,!sel.has(i));$('zsel').append(b);
+function saveCfg(){try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntries(NK.map(k=>[k,$(k).value]))))}catch(_){}}
+(function(){try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(!c)return;NK.forEach(k=>{if(c[k]!=null)$(k).value=c[k]})}catch(_){}})();
+ZONES.forEach(z=>{
+  const b=document.createElement('div');b.className='zc';b.style.setProperty('--c',z.c);b.style.setProperty('--f',z.f);b.textContent=z.n;$('zsel').append(b);
   const m=document.createElement('span');m.style.setProperty('--c',z.c);m.style.setProperty('--f',z.f);m.textContent=z.n;$('zmini').append(m);
 });
-refreshZones();
 NK.forEach(k=>$(k).addEventListener('input',()=>{saveCfg();Remote.push()}));
 const EQC=['#ff4d6d','#ffd23f','#29b6f6','#34c77b','#a66bff','#ff9f1c','#ff6fae'];
 document.querySelector('.eq').append(...EQC.map((c,i)=>{const e=document.createElement('i');e.style.cssText=`--b:${c};--t:${(.28+((i*37)%10)/22).toFixed(2)}s`;return e}));
@@ -162,7 +150,6 @@ function nextZone(){
   return last=deck.pop();
 }
 function startGame(){
-  if(sel.size<2){$('err').textContent='เลือกอย่างน้อย 2 โซน';return}
   if(!ytReady){$('err').textContent='กำลังโหลดเพลง... ลองกดอีกครั้ง';return}
   $('err').textContent='';audio();round=0;deck=[];last=-1;music();
 }
@@ -242,14 +229,10 @@ BGM.init({allow:()=>state==='set'});
 Vol.on(()=>{if(state==='play'&&yt&&!$('s-play').classList.contains('warn'))yt.setVolume(Vol.pct())});
 const RT='เก้าอี้ดนตรี';
 const NUMS={mn:{t:'เพลงเล่นนานอย่างน้อย',min:3,u:'วิ'},mx:{t:'เพลงเล่นนานอย่างมาก',min:3,u:'วิ'},fakes:{t:'หลอกว่าจะหยุด สูงสุด',min:0,max:5,u:'ครั้ง/รอบ'},hold:{t:'เวลาวิ่งไปโซน',min:2,u:'วิ'}};
-function settingsUi(){return[{type:'h',t:'โซนที่ใช้ (หน้าห้องอยู่ใกล้จอ)',ico:'grid'},
-  ...ZONES.map((z,i)=>({k:'z'+i,type:'toggle',t:z.n,v:sel.has(i)})),
-  {type:'h',t:'จังหวะเพลง',ico:'music'},
+function settingsUi(){return[{type:'h',t:'จังหวะเพลง (ใช้ทั้ง 4 โซน)',ico:'music'},
   ...NK.map(k=>({k,type:'number',t:NUMS[k].t,v:+$(k).value||0,min:NUMS[k].min,max:NUMS[k].max,u:NUMS[k].u}))]}
 function applySet(a){
-  if(!a)return;
-  if(/^z[0-3]$/.test(a.k))setZone(+a.k[1],!!a.v);
-  else if(NUMS[a.k]){$(a.k).value=a.v;saveCfg();Remote.push()}
+  if(a&&NUMS[a.k]){$(a.k).value=a.v;saveCfg();Remote.push()}
 }
 Remote.init({id:'color-musical',needsSound:true,qrEl:$('qr'),txtEl:$('rtxt'),lobby:()=>state==='set'?'เก้าอี้ดนตรี 4 โซน':false,
   getUi:()=>{
