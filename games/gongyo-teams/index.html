@@ -49,6 +49,7 @@
   <header><a class="hbtn" href="../../" data-ico="home" aria-label="หน้าแรก"></a><h1 class="ttl" data-fx="scroll">ท่องคัมภีร์ · แข่งเป็นทีม</h1></header>
   <main>
     <div class="panel col">
+      <div class="row"><i class="rico" data-ico="vol"></i>เสียง <span id="vw1"></span></div>
       <div class="row"><i class="rico" data-ico="users"></i>จำนวนทีม <input class="fld" id="nt" type="number" min="2" max="6" value="3"></div>
       <div id="teams"></div>
     </div>
@@ -110,6 +111,7 @@ function drawTeams(){
   }
 }
 $('nt').oninput=drawTeams;drawTeams();
+Vol.widget($('vw1'));
 KAMPIR.forEach((s,i)=>{const l=el('label','tag');const c=el('input');c.type='checkbox';c.checked=true;c.dataset.i=i;l.append(c,document.createTextNode(s.name+' ('+s.slides.length+' หน้า)'));$('secs').append(l)});
 
 /* จำค่าตั้งค่าไว้ในเครื่อง (สลับเกมแล้วกลับมาค่าเดิมยังอยู่) */

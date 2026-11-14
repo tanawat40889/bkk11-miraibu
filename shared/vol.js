@@ -37,9 +37,37 @@
     get(){return st.m?0:st.v/100},
     pct(){return st.m?0:st.v},
     state(){return{v:st.v,m:st.m}},
-    set(v){st.v=clamp(v);if(st.v>0)st.m=false;changed()},
-    toggleMute(){st.m=!st.m;if(!st.m&&st.v===0)st.v=40;changed()},
+    set(v,quiet){st.v=clamp(v);if(st.v>0)st.m=false;changed(quiet)},
+    toggleMute(quiet){st.m=!st.m;if(!st.m&&st.v===0)st.v=40;changed(quiet)},
     on(fn){subs.push(fn)},
+  };
+  /* ตัวควบคุมเสียงบนหน้าเว็บ (ปุ่มปิด/เปิดเสียง + แถบเลื่อน) ใช้ได้โดยไม่ต้องมีรีโมท
+       Vol.widget(ที่ใส่)   → ใส่ตัวควบคุมลงในองค์ประกอบนั้น และอัปเดตเองเมื่อค่าเปลี่ยน */
+  const SPK='<svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M155.5 24.8a8 8 0 0 0-8.4.9L77.3 80H32a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h45.3l69.8 54.3a8 8 0 0 0 12.9-6.3V31.9a8 8 0 0 0-4.5-7.1ZM203 90.7a8 8 0 0 1 11.3-.6 56 56 0 0 1 0 75.8 8 8 0 1 1-11.7-10.9 40 40 0 0 0 0-54 8 8 0 0 1 .4-10.3Z"/></svg>';
+  const MUT='<svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M155.5 24.8a8 8 0 0 0-8.4.9L77.3 80H32a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h45.3l69.8 54.3a8 8 0 0 0 12.9-6.3V31.9a8 8 0 0 0-4.5-7.1Zm58.2 83.5a8 8 0 0 0-11.4 0L192 118.6l-10.3-10.3a8 8 0 0 0-11.4 11.4L180.6 130l-10.3 10.3a8 8 0 0 0 11.4 11.4L192 141.4l10.3 10.3a8 8 0 0 0 11.4-11.4L203.4 130l10.3-10.3a8 8 0 0 0 0-11.4Z"/></svg>';
+  let wcss=false;
+  V.widget=function(host){
+    if(!host)return;
+    if(!wcss){wcss=true;const c=document.createElement('style');c.textContent=`
+      .vw{display:inline-flex;align-items:center;gap:10px;background:rgba(0,0,0,.28);padding:5px 14px 5px 6px;border-radius:999px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);font:600 15px/1 Mitr,ui-rounded,system-ui,sans-serif;color:#fff}
+      .vw .vb{width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:inherit;display:grid;place-items:center;padding:0;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+      .vw .vb:hover{transform:scale(1.08)}.vw .vb:active{transform:scale(.92)}
+      .vw .vb svg{width:24px;height:24px}
+      .vw .vr{width:clamp(90px,16vw,170px);height:30px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+      .vw .vr::-webkit-slider-runnable-track{height:10px;border-radius:99px;background:linear-gradient(90deg,#ffd23f var(--p,70%),rgba(255,255,255,.22) var(--p,70%))}
+      .vw .vr::-moz-range-track{height:10px;border-radius:99px;background:rgba(255,255,255,.22)}
+      .vw .vr::-moz-range-progress{height:10px;border-radius:99px;background:#ffd23f}
+      .vw .vr::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-7px;border-radius:50%;background:#fff;border:0;box-shadow:0 3px 8px -2px rgba(0,0,0,.5)}
+      .vw .vr::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:0;box-shadow:0 3px 8px -2px rgba(0,0,0,.5)}
+      .vw .vp{min-width:3.4em;text-align:right}`;document.head.append(c)}
+    const w=document.createElement('div');w.className='vw';
+    const b=document.createElement('button');b.className='vb';b.type='button';b.setAttribute('aria-label','ปิด/เปิดเสียง');
+    const r=document.createElement('input');r.className='vr';r.type='range';r.min=0;r.max=100;r.step=1;r.setAttribute('aria-label','ระดับเสียง');
+    const p=document.createElement('span');p.className='vp';
+    const paint=()=>{const m=st.m||st.v===0;b.innerHTML=m?MUT:SPK;r.value=st.m?0:st.v;r.style.setProperty('--p',(st.m?0:st.v)+'%');p.textContent=st.m?'ปิดเสียง':st.v+'%'};
+    b.onclick=()=>V.toggleMute(true);
+    r.oninput=()=>V.set(+r.value,true);
+    w.append(b,r,p);host.append(w);paint();V.on(paint);
   };
   addEventListener('storage',e=>{if(e.key===KEY){try{const o=JSON.parse(e.newValue||'{}');if(typeof o.v==='number')st.v=o.v;st.m=!!o.m;changed(true)}catch(_){}}});
 })();

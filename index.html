@@ -24,11 +24,14 @@
 .nm{font-weight:600;font-size:clamp(17px,2.5vw,32px);line-height:1.15}
 .rurl #qr svg{width:clamp(56px,10dvh,100px)}
 .ds{font-size:clamp(12px,1.5vw,17px);opacity:.92;line-height:1.25}
+.vwp{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.scr>header{position:relative}
+@media (max-width:640px){.vwp .vr,.vwp .vp{display:none}}
 </style>
 </head>
 <body>
 <section class="scr on">
-  <header><h1 class="ttl pop-in" data-fx="video-game">เลือกเกม</h1></header>
+  <header><h1 class="ttl pop-in" data-fx="video-game">เลือกเกม</h1><div id="vwp" class="vwp"></div></header>
   <main><div id="grid"></div></main>
   <footer><div class="rurl"><div id="qr" hidden></div><div id="rtxt"></div></div></footer>
 </section>
@@ -54,6 +57,7 @@ GAMES.forEach((k,i)=>{
   a.append(art,n,d);g.append(a);
 });
 
+Vol.widget(document.getElementById('vwp'));
 BGM.init({allow:()=>true});
 Remote.init({id:'picker',needsSound:true,qrEl:$('qr'),txtEl:$('rtxt'),lobby:()=>'',
   getUi:()=>({title:'เลือกเกม',games:true})});

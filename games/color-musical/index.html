@@ -57,6 +57,7 @@
     <div class="zsel" id="zsel"></div>
     <div class="zlab">หลังห้อง</div>
     <div class="panel col">
+      <div class="row"><i class="rico" data-ico="vol"></i>เสียง <span id="vw1"></span></div>
       <div class="row"><i class="rico" data-ico="music"></i>เพลงเล่นนาน <input class="fld" id="mn" type="number" min="3" value="8"> – <input class="fld" id="mx" type="number" min="3" value="20"> วินาที</div>
       <div class="row"><i class="rico" data-ico="hourglass"></i>หลอกว่าจะหยุด สูงสุด <input class="fld" id="fakes" type="number" min="0" value="2"> ครั้ง/รอบ <small>(สุ่ม, 0 = ไม่หลอก)</small></div>
       <div class="row"><i class="rico" data-ico="timer"></i>ให้เวลาวิ่งไปโซน <input class="fld" id="hold" type="number" min="2" value="6"> วินาที</div>
@@ -125,6 +126,7 @@ ZONES.forEach(z=>{
   const nm=document.createElement('div');nm.className='nm';nm.textContent=z.n;t.append(nm);$('zrun').append(t);
 });
 NK.forEach(k=>$(k).addEventListener('input',()=>{saveCfg();Remote.push()}));
+Vol.widget($('vw1'));
 const EQC=['#ff4d6d','#ffd23f','#29b6f6','#34c77b','#a66bff','#ff9f1c','#ff6fae'];
 document.querySelector('.eq').append(...EQC.map((c,i)=>{const e=document.createElement('i');e.style.cssText=`--b:${c};--t:${(.28+((i*37)%10)/22).toFixed(2)}s`;return e}));
 
