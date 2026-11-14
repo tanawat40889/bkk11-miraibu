@@ -12,32 +12,28 @@
   display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px #fff,0 12px 20px -10px rgba(0,0,0,.6)}
 .zlab{font-size:clamp(13px,2dvh + .3vw,22px);opacity:.85}
 
-/* ---------- ระหว่างเล่นเพลง ---------- */
-.stagewrap{position:relative;display:grid;place-items:center;width:clamp(130px,28dvh,320px);aspect-ratio:1}
-#note{width:78%;animation:dance .55s ease-in-out infinite alternate;filter:drop-shadow(0 14px 18px rgba(0,0,0,.35))}
+/* ---------- ระหว่างเล่นเพลง: 4 โซนบนจอวิ่งสุ่มไปเรื่อยๆ ---------- */
+.msgrow{display:flex;align-items:center;justify-content:center;gap:clamp(10px,2vw,26px);flex-wrap:wrap}
+#note{width:clamp(44px,8dvh,90px);height:auto;animation:dance .55s ease-in-out infinite alternate;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35))}
 @keyframes dance{from{transform:rotate(-12deg) translateY(0)}to{transform:rotate(12deg) translateY(-7%)}}
-.stagewrap::before,.stagewrap::after{content:"";position:absolute;inset:6%;border-radius:50%;box-shadow:0 0 0 6px rgba(255,255,255,.35);animation:wave 2.4s var(--ease) infinite}
-.stagewrap::after{animation-delay:1.2s}
-@keyframes wave{from{transform:scale(.55);opacity:.9}to{transform:scale(1.35);opacity:0}}
-.eq{display:flex;gap:clamp(6px,1.2vw,14px);align-items:flex-end;height:clamp(28px,5.5dvh,60px)}
-.eq i{width:clamp(10px,1.6vw,18px);height:100%;border-radius:99px;background:var(--b);transform-origin:bottom;animation:eq var(--t) ease-in-out infinite alternate}
+.eq{display:flex;gap:clamp(5px,1vw,12px);align-items:flex-end;height:clamp(24px,4.6dvh,50px)}
+.eq i{width:clamp(8px,1.3vw,15px);height:100%;border-radius:99px;background:var(--b);transform-origin:bottom;animation:eq var(--t) ease-in-out infinite alternate}
 @keyframes eq{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
-#msg{font-weight:600;font-size:clamp(24px,5dvh + 1vw,64px);line-height:1.1;transition:color .2s}
-/* ชื่อโซนทั้ง 4 โชว์ไว้ระหว่างเดิน; ตอน "หลอก" ไฟวิ่งวนเหมือนวงล้อ */
-.zmini{display:flex;flex-wrap:wrap;gap:clamp(6px,1vw,12px);justify-content:center}
-.zmini span{font-weight:600;font-size:clamp(15px,2.4dvh + .5vw,28px);padding:.25em .9em;border-radius:999px;background:var(--c);color:var(--f);opacity:.8;transition:transform .12s,opacity .12s,box-shadow .12s}
-.zmini span.hl{opacity:1;transform:scale(1.16);box-shadow:0 0 0 3px #fff,0 8px 16px -6px rgba(0,0,0,.6)}
+#msg{font-weight:600;font-size:clamp(22px,4.4dvh + 1vw,56px);line-height:1.1;transition:color .2s}
 #s-play.warn #note{animation:shake .12s linear infinite}
-#s-play.warn .stagewrap::before,#s-play.warn .stagewrap::after{animation-duration:.7s;box-shadow:0 0 0 8px rgba(255,107,129,.8)}
 #s-play.warn .eq i{animation-duration:.18s}
 #s-play.warn #msg{color:var(--y)}
 @keyframes shake{25%{transform:rotate(-10deg) translateX(-4%)}75%{transform:rotate(10deg) translateX(4%)}}
+.zt.run{filter:brightness(.5) saturate(.7);transform:scale(.96)}
+.zt.run .nm{font-size:clamp(22px,5.6dvh + 2vw,92px)}
+.zt.lit{filter:none;transform:none;box-shadow:0 0 0 clamp(4px,.7vw,8px) #fff,0 24px 40px -18px rgba(0,0,0,.7)}
+.zt.lit .nm{font-size:clamp(26px,7dvh + 2.4vw,110px)}
 
 /* ---------- หยุด! โชว์โซนที่เปิด ---------- */
 .zwrap{align-self:stretch;flex:1;min-height:0;display:flex;flex-direction:column;gap:clamp(6px,1.2dvh,12px)}
 .zones{flex:1;min-height:0;display:grid;grid-template:1fr 1fr/1fr 1fr;gap:clamp(8px,1.6vw,20px)}
 .zt{position:relative;border-radius:clamp(20px,3vw,40px);background:var(--c);color:var(--f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15em;min-height:0;overflow:hidden;
-  font-weight:600;transition:filter .3s,transform .4s var(--pop),opacity .3s}
+  font-weight:600;transition:filter .18s,transform .22s var(--pop),box-shadow .18s,opacity .3s}
 .zt .nm{font-size:clamp(26px,7dvh + 2.4vw,120px);line-height:1.05}
 .zt .cap{display:flex;align-items:center;gap:.35em;font-size:clamp(14px,2.6dvh + .6vw,34px);opacity:.95}
 .zt .cap .ic{width:1.15em;height:1.15em}
@@ -74,12 +70,16 @@
 <section id="s-play" class="scr">
   <header><button class="hbtn" id="end" data-ico="stop" aria-label="จบเกม"></button><div class="hdr-sp"></div><div class="ttl sm" id="rnd"></div></header>
   <main>
-    <div class="stagewrap">
-      <svg id="note" viewBox="0 0 100 100" aria-hidden="true"><g fill="#fff" stroke="#241552" stroke-width="3.5" stroke-linejoin="round"><ellipse cx="34" cy="76" rx="17" ry="12.5" transform="rotate(-18 34 76)"/><rect x="46" y="14" width="8" height="62" rx="4"/><path d="M54 14c14 4 25 11 23 30-7-8-14-11-23-12Z"/></g></svg>
+    <div class="zwrap">
+      <div class="msgrow">
+        <svg id="note" viewBox="0 0 100 100" aria-hidden="true"><g fill="#fff" stroke="#241552" stroke-width="3.5" stroke-linejoin="round"><ellipse cx="34" cy="76" rx="17" ry="12.5" transform="rotate(-18 34 76)"/><rect x="46" y="14" width="8" height="62" rx="4"/><path d="M54 14c14 4 25 11 23 30-7-8-14-11-23-12Z"/></g></svg>
+        <div id="msg">เดินไปเรื่อยๆ!</div>
+        <div class="eq" aria-hidden="true"></div>
+      </div>
+      <div class="zlab" style="text-align:center">หน้าห้อง (ใกล้จอ)</div>
+      <div class="zones" id="zrun"></div>
+      <div class="zlab" style="text-align:center">หลังห้อง</div>
     </div>
-    <div class="eq" aria-hidden="true"></div>
-    <div id="msg">เดินไปเรื่อยๆ!</div>
-    <div class="zmini" id="zmini"></div>
   </main>
   <footer><button class="btn ghost" id="skip" data-ico="next"> ข้าม</button></footer>
 </section>
@@ -121,7 +121,8 @@ function saveCfg(){try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntrie
 (function(){try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(!c)return;NK.forEach(k=>{if(c[k]!=null)$(k).value=c[k]})}catch(_){}})();
 ZONES.forEach(z=>{
   const b=document.createElement('div');b.className='zc';b.style.setProperty('--c',z.c);b.style.setProperty('--f',z.f);b.textContent=z.n;$('zsel').append(b);
-  const m=document.createElement('span');m.style.setProperty('--c',z.c);m.style.setProperty('--f',z.f);m.textContent=z.n;$('zmini').append(m);
+  const t=document.createElement('div');t.className='zt run';t.style.setProperty('--c',z.c);t.style.setProperty('--f',z.f);
+  const nm=document.createElement('div');nm.className='nm';nm.textContent=z.n;t.append(nm);$('zrun').append(t);
 });
 NK.forEach(k=>$(k).addEventListener('input',()=>{saveCfg();Remote.push()}));
 const EQC=['#ff4d6d','#ffd23f','#29b6f6','#34c77b','#a66bff','#ff9f1c','#ff6fae'];
@@ -143,33 +144,32 @@ YTReady(()=>{yt=new YT.Player('ytp',{width:200,height:200,videoId:VID,playerVars
    onError:e=>{$('err').textContent='เล่นเพลงไม่ได้ (error '+e.data+') — ถ้าเปิดไฟล์ตรงๆ ให้รันผ่าน http เช่น python3 -m http.server';end()}}})});
 
 /* ---- game ---- */
-let state='set',timer=0,tick=0,deck=[],last=-1,round=0,fk=[],fiv=0,curZ=null,holdLeft=0,spinIv=0;
+let state='set',timer=0,tick=0,deck=[],last=-1,round=0,fk=[],fiv=0,curZ=null,holdLeft=0,runT=0,hl=0;
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id))}
-function nextZone(){
-  if(!deck.length){deck=[...sel].sort(()=>Math.random()-.5);if(deck.length>1&&deck[deck.length-1]===last)deck.reverse()}
-  return last=deck.pop();
-}
 function startGame(){
   if(!ytReady){$('err').textContent='กำลังโหลดเพลง... ลองกดอีกครั้ง';return}
   $('err').textContent='';audio();round=0;deck=[];last=-1;music();
 }
 const DANCERS=['woman-dancing','man-dancing'];
 function setMsg(ic,t){$('msg').innerHTML=Kids.fx(ic)+' ';$('msg').append(document.createTextNode(t))}
-/* วงล้อ: ไฟวิ่งวนผ่านโซนที่ใช้ แล้วดับ (ใช้ตอน "หลอก") */
-function spinZones(ms){
-  clearInterval(spinIv);const act=[...sel],kids=[...$('zmini').children];let n=Math.floor(Math.random()*act.length),t0=Date.now();
-  spinIv=setInterval(()=>{kids.forEach(k=>k.classList.remove('hl'));
-    if(Date.now()-t0>=ms){clearInterval(spinIv);return}
-    kids[act[n%act.length]].classList.add('hl');n++;tick1()},110);
+/* โซนบนจอวิ่งสุ่มไปเรื่อยๆ ระหว่างเพลงเล่น: ไฟกระโดดไปโซนอื่นแบบสุ่ม ตอนหยุดจริง = โซนที่ไฟอยู่ตอนนั้น (สุ่มจริง เดาไม่ได้)
+   ช่วง "หลอก" ไฟวิ่งเร็วขึ้นพร้อมเสียงติ๊ก; ความถี่ต่ำกว่า 3-4 ครั้ง/วินาที เพื่อไม่ให้กะพริบแรงเกินไป */
+const calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function lit(i){hl=i;[...$('zrun').children].forEach((t,k)=>{t.classList.toggle('lit',k===i);t.classList.toggle('run',k!==i)})}
+function runStep(){
+  let n;do{n=Math.floor(Math.random()*ZONES.length)}while(n===hl);
+  const warn=$('s-play').classList.contains('warn');
+  lit(n);if(warn)tick1();
+  runT=setTimeout(runStep,calm?900:warn?230+Math.random()*80:380+Math.random()*260);
 }
-function clr(){clearTimeout(timer);fk.forEach(clearTimeout);fk=[];clearInterval(fiv);clearInterval(tick);clearInterval(spinIv);
-  [...$('zmini').children].forEach(k=>k.classList.remove('hl'));$('s-play').classList.remove('warn');setMsg(DANCERS[round%2],'เดินไปเรื่อยๆ!')}
+function runStart(){clearTimeout(runT);lit(Math.floor(Math.random()*ZONES.length));runT=setTimeout(runStep,500)}
+function clr(){clearTimeout(timer);fk.forEach(clearTimeout);fk=[];clearInterval(fiv);clearInterval(tick);clearTimeout(runT);
+  $('s-play').classList.remove('warn');setMsg(DANCERS[round%2],'เดินไปเรื่อยๆ!')}
 /* หลอก: เสียงค่อยๆ เบาลงจนเงียบ + ไฟวิ่งวนระหว่างโซน แล้วเด้งกลับมาเล่นต่อ (เพลงไม่ได้หยุดจริง) */
 const DIP=1200;
 function fake(){
   const t0=Date.now(),hold=500+Math.random()*700;
   $('s-play').classList.add('warn');setMsg('hourglass-not-done','ใกล้หยุดแล้ว...!');Remote.push();
-  spinZones(DIP+hold);
   fiv=setInterval(()=>{const p=Math.min((Date.now()-t0)/DIP,1);yt.setVolume(Math.round(Vol.pct()*(1-p)*(1-p)));if(p>=1)clearInterval(fiv)},60);
   fk.push(setTimeout(()=>{
     clearInterval(fiv);yt.setVolume(Vol.pct());$('s-play').classList.remove('warn');setMsg('face-with-tongue','หลอกกก!');chime();Remote.push();
@@ -179,7 +179,7 @@ function fake(){
 }
 function music(){
   clr();state='play';round++;
-  $('rnd').textContent='รอบที่ '+round;show('s-play');
+  $('rnd').textContent='รอบที่ '+round;show('s-play');runStart();
   yt.setVolume(Vol.pct());yt.playVideo();BGM.sync();
   let a=Math.max(3,+$('mn').value||8),b=Math.max(a,+$('mx').value||20);
   const total=(a+Math.random()*(b-a))*1000;
@@ -206,7 +206,8 @@ function drawZones(open){
 function stop(){
   clr();state='stop';
   yt.pauseVideo();buzz();
-  const zi=nextZone(),hold=Math.max(2,+$('hold').value||6),ring=$('ring');curZ=ZONES[zi];holdLeft=hold;
+  let zi=hl;if(zi===last)zi=(zi+1)%ZONES.length;last=zi;   // โซนที่ไฟอยู่ตอนเพลงหยุด (ไม่ซ้ำรอบก่อน)
+  const hold=Math.max(2,+$('hold').value||6),ring=$('ring');curZ=ZONES[zi];holdLeft=hold;
   drawZones(zi);
   $('rnd2').textContent='รอบที่ '+round;
   show('s-stop');navigator.vibrate&&navigator.vibrate([100,50,200]);
