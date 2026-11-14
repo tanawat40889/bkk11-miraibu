@@ -7,7 +7,8 @@ import json, re, sys, urllib.request, os
 SETS = {
   'ph': ['house-fill','play-fill','stop-fill','skip-forward-fill','arrow-counter-clockwise-bold','speaker-high-fill','speaker-x-fill',
          'squares-four-fill','x-bold','users-three-fill','timer-fill','music-notes-fill','scroll-fill','sliders-horizontal-fill',
-         'device-mobile-fill','lightbulb-fill','hourglass-medium-fill','qr-code-fill','game-controller-fill','trophy-fill'],
+         'device-mobile-fill','lightbulb-fill','hourglass-medium-fill','qr-code-fill','game-controller-fill','trophy-fill',
+         'check-circle-fill','prohibit-fill'],
   'fluent-emoji-flat': ['musical-notes','musical-note','scroll','trophy','sparkles','party-popper','balloon','rainbow','glowing-star',
          'confetti-ball','1st-place-medal','2nd-place-medal','3rd-place-medal','video-game','thinking-face','light-bulb',
          'face-with-tongue','hourglass-not-done','woman-dancing','man-dancing','puzzle-piece','busts-in-silhouette','stopwatch',

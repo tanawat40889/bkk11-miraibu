@@ -11,7 +11,7 @@
   const ICON={};
   Object.entries({home:'house-fill',stop:'stop-fill',next:'skip-forward-fill',play:'play-fill',again:'arrow-counter-clockwise-bold',vol:'speaker-high-fill',mute:'speaker-x-fill',
     grid:'squares-four-fill',close:'x-bold',users:'users-three-fill',timer:'timer-fill',music:'music-notes-fill',scroll:'scroll-fill',sliders:'sliders-horizontal-fill',
-    phone:'device-mobile-fill',bulb:'lightbulb-fill',hourglass:'hourglass-medium-fill',qr:'qr-code-fill',pad:'game-controller-fill',trophy:'trophy-fill'}).forEach(([k,v])=>{ICON[k]=icon('ph:'+v,'ic')});
+    phone:'device-mobile-fill',bulb:'lightbulb-fill',hourglass:'hourglass-medium-fill',qr:'qr-code-fill',pad:'game-controller-fill',trophy:'trophy-fill',check:'check-circle-fill',no:'prohibit-fill'}).forEach(([k,v])=>{ICON[k]=icon('ph:'+v,'ic')});
 
   window.Kids={
     ICON,icon,fx,

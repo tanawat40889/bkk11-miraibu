@@ -1,7 +1,7 @@
 /* รายการเกมทั้งหมด — ใช้ร่วมกันโดยหน้าเลือกเกมและรีโมทมือถือ
    เพิ่มเกมใหม่: เติมรายการนี้ที่เดียว (u = path จากรากโปรเจค, c = สีการ์ดที่เข้มพอให้ตัวหนังสือขาวอ่านชัด) */
 window.GAMES=[
-  {id:'color-musical',n:'เก้าอี้ดนตรี เหยียบสี',d:'เพลงหยุด แล้วไปเหยียบสีที่ถูกต้อง',u:'games/color-musical/',c:'#d62f55',
+  {id:'color-musical',n:'เก้าอี้ดนตรี 4 โซน',d:'เพลงหยุด แล้ววิ่งไปโซนที่เปิด',u:'games/color-musical/',c:'#d62f55',
    art:`<svg viewBox="0 0 120 100" aria-hidden="true">
      <rect x="8" y="14" width="46" height="46" rx="10" fill="#ff4d6d" transform="rotate(-10 31 37)"/>
      <rect x="62" y="8" width="46" height="46" rx="10" fill="#ffd23f" transform="rotate(8 85 31)"/>
